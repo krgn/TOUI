@@ -26,10 +26,16 @@ namespace TOUI
 			packet.Command = c;
 			
 			//decode to specific datatype
-			if (v.Data.Type == "Number")
-				packet.Data = JsonConvert.DeserializeObject<Number>(v.Data.ToString());
+			if (v.Data.Type == "Boolean")
+				packet.Data = JsonConvert.DeserializeObject<TOUIBoolean>(v.Data.ToString());
+			else if (v.Data.Type == "Number")
+				packet.Data = JsonConvert.DeserializeObject<TOUINumber>(v.Data.ToString());
 			else if (v.Data.Type == "String")
-				packet.Data = JsonConvert.DeserializeObject<_String>(v.Data.ToString());
+				packet.Data = JsonConvert.DeserializeObject<TOUIString>(v.Data.ToString());
+			else if (v.Data.Type == "Color")
+				packet.Data = JsonConvert.DeserializeObject<TOUIColor>(v.Data.ToString());
+			else if (v.Data.Type == "Enum")
+				packet.Data = JsonConvert.DeserializeObject<TOUIEnum>(v.Data.ToString());
 			
 			return packet;
 		}

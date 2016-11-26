@@ -34,6 +34,8 @@ namespace TOUI
 		
 		public override void Dispose()
 		{
+			//remove all values?
+			
 			if (FTransporter != null)
 				FTransporter.Dispose();
 		}

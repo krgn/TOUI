@@ -22,7 +22,7 @@ namespace TOUI
 		{
 			var packet = new Packet();
 			packet.Command = command;
-			packet.Data = new Number(id, null, null);
+			packet.Data = new TOUINumber(id, null, null);
 			
 			return packet;
 		}
@@ -31,7 +31,7 @@ namespace TOUI
 		{
 			var packet = new Packet();
 			packet.Command = command;
-			packet.Data = new Number("", null, null);
+			packet.Data = new TOUINumber("", null, null);
 			
 			return packet;
 		}

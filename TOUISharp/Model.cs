@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 using Newtonsoft.Json;
 
 namespace TOUI
@@ -18,7 +19,7 @@ namespace TOUI
 		public string Label { get; set; }
 		public string Description { get; set; }
 		//public Widget Widget { get; set; }
-		public object Userdata { get; set; }
+		public object UserData { get; set; }
 		
 		public Value(string id, object value)
 		{
@@ -33,7 +34,16 @@ namespace TOUI
 		}
 	}
 	
-	public class Number: Value
+	public class TOUIBoolean: Value
+	{
+		public TOUIBoolean(string id, object value)
+		: base (id, value)
+		{
+			Type = "Boolean";
+		}
+	}
+	
+	public class TOUINumber: Value
 	{
 		public string Subtype { get; set; }
 		public object Min { get; set; }
@@ -43,36 +53,50 @@ namespace TOUI
 		public bool Cyclic { get; set; }
 		public bool Pow2 { get; set; }
 		
-		public Number(string id, object value, string subtype)
+		public TOUINumber(string id, object value, string subtype)
 		: base (id, value)
 		{
 			Type = "Number";
 			Subtype = subtype;
 		}
-
-		public override string ToString()
-		{
-			return base.ToString() + " number";
-		}
 	}
 	
-	public class _String: Value
+	public class TOUIString: Value
 	{
 		public string Subtype { get; set; }
 		public string Filemask { get; set; }
 		public string MaxChars { get; set; }
 		public bool Multiline { get; set; }
 		
-		public _String(string id, string value, string subtype)
+		public TOUIString(string id, string value, string subtype)
 		: base (id, value)
 		{
 			Type = "String";
 			Subtype = subtype;
 		}
-
-		public override string ToString()
+	}
+	
+	public class TOUIColor: Value
+	{
+		public string Subtype { get; set; }
+		
+		public TOUIColor(string id, Color value, string subtype)
+		: base (id, value)
 		{
-			return base.ToString() + " string";
+			Type = "Color";
+			Subtype = subtype;
+		}
+	}
+	
+	public class TOUIEnum: Value
+	{
+		public string[] Entries { get; set; }
+		
+		public TOUIEnum(string id, int value, string[] entries)
+		: base (id, value)
+		{
+			Type = "Enum";
+			Entries = entries;
 		}
 	}
 }
