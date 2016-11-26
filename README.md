@@ -9,7 +9,7 @@ It is intended to expose parameters (values) from a host application to a client
 - __Layout__ (optional): Placement of widgets on a screen: The Layouting of Widgets defines how widgets are placed on screen by defining standard containers.
 - __Style__ (optional): Look (colors, shading, ...) of widgets on a screen: CSS styling of widgets
 
-The first draft version of TOI only defines 1. (Values) and 2. (Widgets)
+The first draft version of TOUI only defines 1. (Values) and 2. (Widgets)
 
 A client can freely choose defaults for optional properties that are not used.
 
