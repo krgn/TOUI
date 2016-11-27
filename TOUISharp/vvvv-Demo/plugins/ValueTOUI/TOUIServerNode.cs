@@ -117,14 +117,24 @@ namespace VVVV.Nodes
 			var id = pin.ParentNode.GetNodePath(false) + "/" + pin.Name;
 			
 			Value value = null;
-			/// values: guiType, dimension, default, min, max, stepSize, unitName, precision
-			var subtype = pin.SubType.Split(',');
-			var spread = pin.Spread.Split(',');
 			
-			FLogger.Log(LogType.Debug, pin.Type + ": " + spread.Count().ToString());
+			var subtype = pin.SubType.Split(',');
+			
+			//figure out the actual spreadcount 
+			//taking dimensions (ie. vectors) of value-spreads into account
+			var sliceCount = pin.SliceCount;
 			if (pin.Type == "Value")
 			{
-				if (spread.Count() == 1)
+				var dimensions = 1;
+				int.TryParse(subtype[1], out dimensions);
+				sliceCount /= dimensions;
+			}
+			
+			/// values: guiType, dimension, default, min, max, stepSize, unitName, precision
+			
+			FLogger.Log(LogType.Debug, pin.Type + ": " + sliceCount.ToString());
+			if (pin.Type == "Value")
+			{
 				{
 					var dimensions = subtype[1].Trim();
 					if (dimensions == "1")
@@ -143,13 +153,13 @@ namespace VVVV.Nodes
 							var isbool = (min == 0) && (max == 1);
 							if (isbool)
 							{
-								value = new TOUIBoolean(id, spread[0] == "1");
+								value = new TOUIBoolean(id, pin[0] == "1");
 								value.Default = dflt;
 							}
 							else
 							{
 								int v;
-								int.TryParse(spread[0], out v);
+								int.TryParse(pin[0], out v);
 								var number = new TOUINumber(id, v, "int32");
 								number.Default = dflt;
 								number.Min = min;
@@ -170,8 +180,25 @@ namespace VVVV.Nodes
 							float precision = 0;
 							float.TryParse(subtype[7], NumberStyles.Float, CultureInfo.InvariantCulture, out precision);
 							
-							float v;
-							float.TryParse(spread[0], NumberStyles.Float, CultureInfo.InvariantCulture, out v);
+							object v;
+							float f = 0;
+							if (sliceCount == 1)
+							{
+								float.TryParse(pin[0], NumberStyles.Float, CultureInfo.InvariantCulture, out f);
+								v = f;
+							}
+							else
+							{
+								float[] fs = new float[sliceCount];
+								for (int i = 0; i<sliceCount; i++)
+								{
+									f = 0;
+									float.TryParse(pin[i], NumberStyles.Float, CultureInfo.InvariantCulture, out f);
+									fs[i] = f;
+								}	
+								v = fs;								
+							}
+							
 							var number = new TOUINumber(id, v, "float32");
 							number.Default = dflt;
 							number.Min = min;
@@ -187,14 +214,14 @@ namespace VVVV.Nodes
 			else if (pin.Type == "String")
 			{
 				/// strings: guiType, default, fileMask, maxChars
-				var s = new TOUIString(id, spread[0], "");
+				var s = new TOUIString(id, pin[0], "");
 				s.Default = subtype[1];
 				value = s;
 			}
 			else if (pin.Type == "Color")
 			{
 				/// colors: guiType, default, hasAlpha
-				var comps = pin.Spread.Trim('|').Split(',');
+				var comps = pin[0].Split(',');
 				var rgba = new RGBAColor(float.Parse(comps[0]), float.Parse(comps[1]), float.Parse(comps[2]), float.Parse(comps[3]));
 				
 				bool hasAlpha = subtype[2].Trim() == "HasAlpha";
@@ -210,7 +237,7 @@ namespace VVVV.Nodes
 					entries.Add(EnumManager.GetEnumEntryString(enumName, i));
 					
 				var dfault = entries.IndexOf(subtype[2].Trim());
-				var val = entries.IndexOf(pin.Spread); 
+				var val = entries.IndexOf(pin[0]); 
 				value = new TOUIEnum(id, val, entries.ToArray()) { Default = dfault } ;
 			}
 			
