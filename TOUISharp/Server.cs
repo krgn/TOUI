@@ -23,9 +23,9 @@ namespace TOUI
 			}
 		}
 		
-		public Action<Value> ValueUpdated;
+		public Action<Parameter> ValueUpdated;
 		
-		Dictionary<string, Value> FValues = new Dictionary<string, Value>();
+		Dictionary<string, Parameter> FValues = new Dictionary<string, Parameter>();
 		
 		public string[] IDs 
 		{
@@ -40,12 +40,12 @@ namespace TOUI
 				FTransporter.Dispose();
 		}
 		
-		public bool AddValue(Value value)
+		public bool AddValue(Parameter value)
 		{
 			var result = false;
-			if (!FValues.ContainsKey(value.Id))
+			if (!FValues.ContainsKey(value.ID))
 			{
-				FValues.Add(value.Id, value);
+				FValues.Add(value.ID, value);
 				result = true;
 			}
 			
@@ -56,13 +56,13 @@ namespace TOUI
 			return result;
 		}
 		
-		public bool UpdateValue(Value value)
+		public bool UpdateValue(Parameter value)
 		{
 			var result = false;
-			if (FValues.ContainsKey(value.Id))
-				FValues.Remove(value.Id);
+			if (FValues.ContainsKey(value.ID))
+				FValues.Remove(value.ID);
 			
-			FValues.Add(value.Id, value);
+			FValues.Add(value.ID, value);
 			result = true;
 			
 			//dispatch to all clients via transporter
@@ -91,7 +91,7 @@ namespace TOUI
 				case Command.Update:
 				//inform the application
 				if (ValueUpdated != null)
-					ValueUpdated(packet.Data);
+					ValueUpdated(packet.Parameter);
 				break;
 				
 				case Command.Init:

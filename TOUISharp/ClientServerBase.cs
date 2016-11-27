@@ -9,11 +9,11 @@ namespace TOUI
 	{
 		public ILogger Logger {get; set;}
 		
-		protected Packet Pack(Command command, Value value)
+		protected Packet Pack(Command command, Parameter parameter)
 		{
 			var packet = new Packet();
 			packet.Command = command;
-			packet.Data = value;
+			packet.Parameter = parameter;
 			
 			return packet;
 		}
@@ -22,7 +22,7 @@ namespace TOUI
 		{
 			var packet = new Packet();
 			packet.Command = command;
-			packet.Data = new TOUINumber(id, null, null);
+			packet.Parameter = new Parameter(id);
 			
 			return packet;
 		}
@@ -31,7 +31,7 @@ namespace TOUI
 		{
 			var packet = new Packet();
 			packet.Command = command;
-			packet.Data = new TOUINumber("", null, null);
+//			packet.Parameter = null; //new Parameter("");
 			
 			return packet;
 		}

@@ -10,7 +10,6 @@ using System.ComponentModel.Composition;
 using System.Windows.Forms;
 
 using VVVV.Core.Logging;
-using Newtonsoft.Json;
 #endregion usings
 
 namespace TOUI

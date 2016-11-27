@@ -7,96 +7,128 @@ namespace TOUI
     public class Packet
 	{
 		public Command Command { get; set; }
-		public Value Data { get; set; }
+		public Parameter Parameter { get; set; }
 	}
 	
-	public class Value
+	public class Parameter
 	{
-		public string Id { get; set; }
-		public string Type { get; set; }
-		public object _Value { get; set; }
-		public object Default { get; set; }
+		public string ID { get; set; }
+		public ValueDefinition ValueDefinition { get; set; }
+		public object Value { get; set; }
+		//public Widget Widget { get; set; }
+		
+		public Parameter (string id)
+		{
+			ID = id;
+//			ValueDefinition = null;
+//			Value = null;
+		}
+	}
+	
+	public class ValueDefinition
+	{
+		public string Name { get; set; }
 		public string Label { get; set; }
 		public string Description { get; set; }
-		//public Widget Widget { get; set; }
+		public object Default { get; set; }
 		public object UserData { get; set; }
 		
-		public Value(string id, object value)
+		public ValueDefinition(string name, object _default)
 		{
-			Id = id;
-			_Value = value;
+			Name = name;
+			Default = _default;
 		}
 		
 		public override string ToString()
 		{
-			var serializerSettings = new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Ignore };
+		//	var serializerSettings = new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Ignore };
 			return JsonConvert.SerializeObject(this);
 		}
 	}
 	
-	public class TOUIBoolean: Value
+	public class TOUIBoolean: ValueDefinition
 	{
-		public TOUIBoolean(string id, object value)
-		: base (id, value)
+		public TOUIBoolean()
+		: base ("Boolean", false)
 		{
-			Type = "Boolean";
 		}
 	}
 	
-	public class TOUINumber: Value
+	public class TOUINumber<T>: ValueDefinition
 	{
-		public string Subtype { get; set; }
-		public object Min { get; set; }
-		public object Max { get; set; }
-		public object Stepsize { get; set; }
+		public T Min { get; set; }
+		public T Max { get; set; }
+		public T Stepsize { get; set; }
 		public string Unit { get; set; }
 		public bool Cyclic { get; set; }
 		public bool Pow2 { get; set; }
 		
-		public TOUINumber(string id, object value, string subtype)
-		: base (id, value)
+		public TOUINumber()
+		: base ("Number", 0)
 		{
-			Type = "Number";
-			Subtype = subtype;
+			if (typeof(T).ToString() == "System.Int32")
+				Name += "<int32>";
+			else if (typeof(T).ToString() == "System.Single")
+				Name += "<float32>";
 		}
 	}
 	
-	public class TOUIString: Value
+	public class TOUIString: ValueDefinition
 	{
 		public string Subtype { get; set; }
 		public string Filemask { get; set; }
 		public string MaxChars { get; set; }
 		public bool Multiline { get; set; }
 		
-		public TOUIString(string id, string value, string subtype)
-		: base (id, value)
+		public TOUIString()
+		: base ("String", "")
 		{
-			Type = "String";
-			Subtype = subtype;
 		}
 	}
 	
-	public class TOUIColor: Value
+	public class TOUIColor: ValueDefinition
 	{
 		public string Subtype { get; set; }
 		
-		public TOUIColor(string id, Color value, string subtype)
-		: base (id, value)
+		public TOUIColor(string subtype)
+		: base ("Color", Color.Black)
 		{
-			Type = "Color";
 			Subtype = subtype;
 		}
 	}
 	
-	public class TOUIEnum: Value
+	public class TOUIEnum: ValueDefinition
 	{
 		public string[] Entries { get; set; }
 		
-		public TOUIEnum(string id, int value, string[] entries)
-		: base (id, value)
+		public TOUIEnum(string[] entries)
+		: base ("Enum", 0)
 		{
-			Type = "Enum";
 			Entries = entries;
+		}
+	}
+	
+	public class Vector2<T>: ValueDefinition
+	{
+		public T Subtype { get; set; }
+		
+		public Vector2(T subtype)
+		: base ("Vector", null)
+		{
+			Subtype = subtype;
+		}
+	}
+	
+	public class TOUIDictionary<K, V>: ValueDefinition
+	{
+		public K KeyDefinition { get; set; }
+		public V ValueDefinition { get; set; }
+		
+		public TOUIDictionary(K keyDefinition, V valueDefinition)
+		: base ("Dictionary", null)
+		{
+			KeyDefinition = keyDefinition;
+			ValueDefinition = valueDefinition;
 		}
 	}
 }
