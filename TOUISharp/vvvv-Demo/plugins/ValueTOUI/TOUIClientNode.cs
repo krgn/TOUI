@@ -31,7 +31,7 @@ namespace VVVV.Nodes
 		[Import()]
 		public ILogger FLogger;
 		
-		Dictionary<string, Value> FValues = new Dictionary<string, Value>();
+		Dictionary<string, Parameter> FValues = new Dictionary<string, Parameter>();
 		Client FTOUIClient;
 		#endregion fields & pins
 		
@@ -58,13 +58,13 @@ namespace VVVV.Nodes
 			FTOUIClient.Dispose();
 		}
 		
-		private void ValueAdded(Value value)
+		private void ValueAdded(Parameter value)
 		{
-			if (!FValues.ContainsKey(value.Id))
-				FValues.Add(value.Id, value);
+			if (!FValues.ContainsKey(value.ID))
+				FValues.Add(value.ID, value);
 		}
 		
-		private void ValueUpdated(Value value)
+		private void ValueUpdated(Parameter value)
 		{
 			
 		}
@@ -84,7 +84,9 @@ namespace VVVV.Nodes
 				FTOUIClient.Init();
 			}
 				
-			FOutput.AssignFrom(FValues.Values.Select(v => v.ToString()));
+			FOutput.AssignFrom(FValues.Values.Select(v => v.ID + ": " + v.ValueDefinition.ToString() + ": " + v.Value.ToString()));
+			//FOutput.AssignFrom(FValues.Values.Select(v => v.ID + ": " + v.ValueDefinition.ToString()));
+			
 		}
 	}
 }

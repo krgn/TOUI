@@ -1,6 +1,6 @@
 <!DOCTYPE PATCH  SYSTEM "http://vvvv.org/versions/vvvv50debug34.106.dtd" >
    <PATCH nodename="C:\Users\joreg\Documents\repos\TOUI\TOUISharp\vvvv-Demo\TOUITester.v4p" systemname="TOUITester2" filename="C:\Users\joreg\Documents\repos\TOUI\TOUITester2.v4p" scrollx="1170" scrolly="0">
-   <BOUNDS type="Window" left="765" top="3075" width="15075" height="6765">
+   <BOUNDS type="Window" left="615" top="1650" width="13845" height="7170">
    </BOUNDS>
    <PACK Name="addonpack" Version="34.101.0">
    </PACK>
@@ -45,7 +45,7 @@
    </BOUNDS>
    <BOUNDS type="Box" left="3795" top="4965" width="2400" height="1800">
    </BOUNDS>
-   <BOUNDS type="Window" left="780" top="10260" width="12390" height="5055">
+   <BOUNDS type="Window" left="795" top="12975" width="13740" height="2625">
    </BOUNDS>
    </NODE>
    <NODE nodename="IOBox (String)" componentmode="InABox" id="84" exposed="0">
@@ -135,9 +135,9 @@
    </PIN>
    </NODE>
    <NODE systemname="IOBox (Value Advanced)" nodename="IOBox (Value Advanced)" componentmode="InABox" id="105" exposed="1">
-   <BOUNDS type="Node" left="1575" top="750" width="100" height="100">
+   <BOUNDS type="Node" left="1575" top="840" width="100" height="100">
    </BOUNDS>
-   <BOUNDS type="Box" left="1575" top="750" width="795" height="270">
+   <BOUNDS type="Box" left="1575" top="840" width="795" height="270">
    </BOUNDS>
    <PIN pinname="Value Type" slicecount="1" values="Integer">
    </PIN>
@@ -157,9 +157,9 @@
    </PIN>
    </NODE>
    <NODE systemname="IOBox (Value Advanced)" nodename="IOBox (Value Advanced)" componentmode="InABox" id="106">
-   <BOUNDS type="Node" left="1575" top="1200" width="100" height="100">
+   <BOUNDS type="Node" left="1575" top="1290" width="100" height="100">
    </BOUNDS>
-   <BOUNDS type="Box" left="1575" top="1200" width="795" height="480">
+   <BOUNDS type="Box" left="1575" top="1290" width="795" height="480">
    </BOUNDS>
    <PIN pinname="Rows" slicecount="1" values="2">
    </PIN>
@@ -205,11 +205,13 @@
    </BOUNDS>
    <PIN pinname="Default" slicecount="1" values="doo">
    </PIN>
-   <PIN pinname="Input String" slicecount="1" values="bar">
+   <PIN pinname="Input String" slicecount="1" visible="1" pintype="Input" values="bar">
    </PIN>
    <PIN pinname="Descriptive Name" slicecount="1" values="|My String|">
    </PIN>
    <PIN pinname="Tag" slicecount="1" values="|the string tag|">
+   </PIN>
+   <PIN pinname="Output String" visible="1" pintype="Output">
    </PIN>
    </NODE>
    <NODE systemname="IOBox (Color)" nodename="IOBox (Color)" componentmode="InABox" id="110" exposed="1">
@@ -267,5 +269,21 @@
    </BOUNDS>
    </NODE>
    <LINK srcnodeid="121" srcpinname="Output" dstnodeid="84" dstpinname="Input String">
+   </LINK>
+   <NODE systemname="LinearSpread (Spreads)" nodename="LinearSpread (Spreads)" componentmode="Hidden" id="122">
+   <BOUNDS type="Node" left="1530" top="6000" width="100" height="100">
+   </BOUNDS>
+   <PIN pinname="Alignment" visible="1">
+   </PIN>
+   </NODE>
+   <NODE nodename="IOBox (Enumerations)" componentmode="InABox" id="123" exposed="1">
+   <BOUNDS type="Box" left="2145" top="5580" width="1590" height="270">
+   </BOUNDS>
+   <BOUNDS type="Node" left="2145" top="5580" width="0" height="0">
+   </BOUNDS>
+   <PIN pinname="Input Enum" slicecount="1" visible="1" values="Centered">
+   </PIN>
+   </NODE>
+   <LINK srcnodeid="123" srcpinname="Output Enum" dstnodeid="122" dstpinname="Alignment">
    </LINK>
    </PATCH>

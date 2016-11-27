@@ -14,8 +14,6 @@ using VVVV.Utils.VColor;
 using VVVV.Utils.VMath;
 using VVVV.Core.Logging;
 
-using Newtonsoft.Json;
-
 using TOUI;
 #endregion usings
 
@@ -74,8 +72,8 @@ namespace VVVV.Nodes
 		  	FTOUIServer.Logger = FLogger;
 		}
 		
-		public void Dispose()
-		{
+		public void Dispose() 
+		{ 
 			//unscubscribe from nodeservice
 			FHDEHost.ExposedNodeService.NodeAdded -= NodeAddedCB;
 			FHDEHost.ExposedNodeService.NodeRemoved -= NodeRemovedCB;
@@ -95,7 +93,7 @@ namespace VVVV.Nodes
 			pin.Changed += PinChanged;
 			
 			var value = PinToValue(pin);
-			FCachedPins.Add(value.Id, pin);
+			FCachedPins.Add(value.ID, pin);
 			
 			FTOUIServer.AddValue(value);
 		}
@@ -112,16 +110,17 @@ namespace VVVV.Nodes
 			FTOUIServer.RemoveValue(id);
 		}
 		
-		private Value PinToValue(IPin2 pin)
+		private Parameter PinToValue(IPin2 pin)
 		{
 			var id = pin.ParentNode.GetNodePath(false) + "/" + pin.Name;
 			
-			Value value = null;
-			
-			var subtype = pin.SubType.Split(',');
+			Parameter parameter = new Parameter(id);
+			ValueDefinition valueDefinition = null;
+			object value = null;
 			
 			//figure out the actual spreadcount 
 			//taking dimensions (ie. vectors) of value-spreads into account
+			var subtype = pin.SubType.Split(',');
 			var sliceCount = pin.SliceCount;
 			if (pin.Type == "Value")
 			{
@@ -130,93 +129,93 @@ namespace VVVV.Nodes
 				sliceCount /= dimensions;
 			}
 			
-			/// values: guiType, dimension, default, min, max, stepSize, unitName, precision
-			
 			FLogger.Log(LogType.Debug, pin.Type + ": " + sliceCount.ToString());
+			
 			if (pin.Type == "Value")
 			{
+				/// values: guiType, dimension, default, min, max, stepSize, unitName, precision
+				var dimensions = subtype[1].Trim();
+				if (dimensions == "1")
 				{
-					var dimensions = subtype[1].Trim();
-					if (dimensions == "1")
+					int intStep = 0;
+					float floatStep = 0;
+					if (int.TryParse(subtype[5], out intStep)) //integer
 					{
-						int intStep = 0;
-						float floatStep = 0;
-						if (int.TryParse(subtype[5], out intStep)) //integer
+						int dflt = 0;
+						int.TryParse(subtype[2], out dflt);
+						int min = 0;
+						int.TryParse(subtype[3], out min);
+						int max = 0;
+						int.TryParse(subtype[4], out max);
+						
+						var isbool = (min == 0) && (max == 1);
+						if (isbool)
 						{
-							int dflt = 0;
-							int.TryParse(subtype[2], out dflt);
-							int min = 0;
-							int.TryParse(subtype[3], out min);
-							int max = 0;
-							int.TryParse(subtype[4], out max);
-							
-							var isbool = (min == 0) && (max == 1);
-							if (isbool)
-							{
-								value = new TOUIBoolean(id, pin[0] == "1");
-								value.Default = dflt;
-							}
-							else
-							{
-								int v;
-								int.TryParse(pin[0], out v);
-								var number = new TOUINumber(id, v, "int32");
-								number.Default = dflt;
-								number.Min = min;
-								number.Max = max;
-								number.Stepsize = intStep;
-								number.Unit = subtype[6];
-								value = number;
-							}
-						} 
-						else if (float.TryParse(subtype[5], NumberStyles.Float, CultureInfo.InvariantCulture, out floatStep))
+							valueDefinition = new TOUIBoolean();
+							valueDefinition.Default = dflt;
+							value = pin[0] == "1";
+						}
+						else
 						{
-							float dflt = 0;
-							float.TryParse(subtype[2], NumberStyles.Float, CultureInfo.InvariantCulture, out dflt);
-							float min = 0;
-							float.TryParse(subtype[3], NumberStyles.Float, CultureInfo.InvariantCulture, out min);
-							float max = 0;
-							float.TryParse(subtype[4], NumberStyles.Float, CultureInfo.InvariantCulture, out max);
-							float precision = 0;
-							float.TryParse(subtype[7], NumberStyles.Float, CultureInfo.InvariantCulture, out precision);
-							
-							object v;
-							float f = 0;
-							if (sliceCount == 1)
-							{
-								float.TryParse(pin[0], NumberStyles.Float, CultureInfo.InvariantCulture, out f);
-								v = f;
-							}
-							else
-							{
-								float[] fs = new float[sliceCount];
-								for (int i = 0; i<sliceCount; i++)
-								{
-									f = 0;
-									float.TryParse(pin[i], NumberStyles.Float, CultureInfo.InvariantCulture, out f);
-									fs[i] = f;
-								}	
-								v = fs;								
-							}
-							
-							var number = new TOUINumber(id, v, "float32");
+							int v;
+							int.TryParse(pin[0], out v);
+							var number = new TOUINumber<int>();
 							number.Default = dflt;
 							number.Min = min;
 							number.Max = max;
-							number.Stepsize = floatStep;
-							number.Unit = subtype[6].Trim();
-							value = number;
+							number.Stepsize = intStep;
+							number.Unit = subtype[6];
+							valueDefinition = number;
+							value = v;
 						}
+					} 
+					else if (float.TryParse(subtype[5], NumberStyles.Float, CultureInfo.InvariantCulture, out floatStep))
+					{
+						float dflt = 0;
+						float.TryParse(subtype[2], NumberStyles.Float, CultureInfo.InvariantCulture, out dflt);
+						float min = 0;
+						float.TryParse(subtype[3], NumberStyles.Float, CultureInfo.InvariantCulture, out min);
+						float max = 0;
+						float.TryParse(subtype[4], NumberStyles.Float, CultureInfo.InvariantCulture, out max);
+						float precision = 0;
+						float.TryParse(subtype[7], NumberStyles.Float, CultureInfo.InvariantCulture, out precision);
+						
+						float f = 0;
+						if (sliceCount == 1)
+						{
+							float.TryParse(pin[0], NumberStyles.Float, CultureInfo.InvariantCulture, out f);
+							value = f;
+						}
+						else
+						{
+							float[] fs = new float[sliceCount];
+							for (int i = 0; i<sliceCount; i++)
+							{
+								f = 0;
+								float.TryParse(pin[i], NumberStyles.Float, CultureInfo.InvariantCulture, out f);
+								fs[i] = f;
+							}	
+							value = fs;								
+						}
+						
+						
+						var number = new TOUINumber<float>();
+						number.Default = dflt;
+						number.Min = min;
+						number.Max = max;
+						number.Stepsize = floatStep;
+						number.Unit = subtype[6].Trim();
+						valueDefinition = number;
 					}
-					//else //vectors
 				}
+				//else //vectors
 			}
 			else if (pin.Type == "String")
 			{
 				/// strings: guiType, default, fileMask, maxChars
-				var s = new TOUIString(id, pin[0], "");
-				s.Default = subtype[1];
-				value = s;
+				valueDefinition = new TOUIString();
+				valueDefinition.Default = subtype[1];
+				value = pin[0];
 			}
 			else if (pin.Type == "Color")
 			{
@@ -225,7 +224,9 @@ namespace VVVV.Nodes
 				var rgba = new RGBAColor(float.Parse(comps[0]), float.Parse(comps[1]), float.Parse(comps[2]), float.Parse(comps[3]));
 				
 				bool hasAlpha = subtype[2].Trim() == "HasAlpha";
-				value = new TOUIColor(id, rgba.Color, "RGB" + (hasAlpha ? "A" : ""));
+				valueDefinition = new TOUIColor("RGB" + (hasAlpha ? "A" : ""));
+				
+				value = rgba.Color;
 			}
 			else if (pin.Type == "Enumeration")
 			{
@@ -238,22 +239,27 @@ namespace VVVV.Nodes
 					
 				var dfault = entries.IndexOf(subtype[2].Trim());
 				var val = entries.IndexOf(pin[0]); 
-				value = new TOUIEnum(id, val, entries.ToArray()) { Default = dfault } ;
+				valueDefinition = new TOUIEnum(entries.ToArray());
+				valueDefinition.Default = dfault;
+				value = entries.IndexOf(pin[0]);
 			}
 			
-			if (value == null)
+			if (valueDefinition == null)
 			{
-				value = new TOUIString(id, "", "");
-				value.Label = "Unknown Value";
+				valueDefinition = new TOUIString();
+				valueDefinition.Label = "Unknown Value";
 			}
-			
-			value.Label = pin.ParentNode.LabelPin.Spread.Trim('|');
+			else
+				valueDefinition.Label = pin.ParentNode.LabelPin.Spread.Trim('|');
 			
 			var tag = pin.ParentNode.FindPin("Tag");
 			if (tag != null)
-				value.UserData = tag.Spread.Trim('|');
+				valueDefinition.UserData = tag.Spread.Trim('|');
         	
-			return value;
+			parameter.ValueDefinition = valueDefinition;
+			parameter.Value = value;
+			
+			return parameter;
 		}
 		
 		private string PinNameFromNode(INode2 node)
@@ -282,12 +288,12 @@ namespace VVVV.Nodes
 		}
 		
 		//a TOUI client has updated a value
-		private void ValueUpdated(Value value)
+		private void ValueUpdated(Parameter value)
 		{
 			IPin2 pin;
-			if (FCachedPins.TryGetValue(value.Id, out pin))
+			if (FCachedPins.TryGetValue(value.ID, out pin))
 			{
-				pin.Spread = value._Value.ToString();
+				pin.Spread = value.Value.ToString();
 			}
 		}
 		
