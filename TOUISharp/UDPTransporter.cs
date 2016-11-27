@@ -72,13 +72,11 @@ namespace TOUI
 					var bytes = FUDPReceiver.Receive(ref ipEndPoint);
 					
 					if (bytes.Length > 0 && Received != null && Serializer != null)
-					{
 						Received(Serializer.Deserialize(bytes));
-					}
 				}
 				catch (Exception e)
 				{
-					//MessageBox.Show("UDP receive error on server: " + e.Message);
+					//MessageBox.Show(e.Message);
 				}
 			}
 		}
@@ -139,12 +137,13 @@ namespace TOUI
 				{
 					IPEndPoint ipEndPoint = null;
 					var bytes = FUDPReceiver.Receive(ref ipEndPoint);
+					
 					if (Received != null && Serializer != null)
 						Received(Serializer.Deserialize(bytes));
 				}
 				catch (Exception e)
 				{
-					//FLogger.Log(LogType.Debug, "UDP: " + e.Message);
+//					MessageBox.Show(e.Message);
 				}
 			}
 		}

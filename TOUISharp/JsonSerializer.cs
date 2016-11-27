@@ -31,60 +31,85 @@ namespace TOUI
 			var json = Encoding.ASCII.GetString(bytes);
 			
 			//first decode as dynamic to check for the datatype
-			dynamic v = JsonConvert.DeserializeObject(json);
+			dynamic p = JsonConvert.DeserializeObject(json);
 			
 			var packet = new Packet();
 			Command c;
-			Command.TryParse(v.Command.ToString(), out c);
+			Command.TryParse(p.Command.ToString(), out c);
 			packet.Command = c;
 			
 			if (packet.Command == Command.Init)
 				return packet;
 			
-			packet.Parameter = new Parameter(v.Parameter.ID.ToString());
+			packet.Parameter = new Parameter(p.Parameter.ID.ToString());
+			
+			//MessageBox.Show(packet.Command.ToString());
 			
 			if (packet.Command == Command.Remove)
 				return packet;
 			
 			//decode to specific datatype
-			var vdn = v.Parameter.ValueDefinition.Name.ToString();
-			if (vdn == "Boolean")
+			var vdn = p.Parameter.ValueDefinition.Name.ToString();
+			var vd = p.Parameter.ValueDefinition.ToString();
+			var v = p.Parameter.Value.ToString();
+			
+//			MessageBox.Show(vd);
+			
+			DecodeValueDefition(packet, vdn, vd, v);
+			return packet;
+		}
+		
+		private void DecodeValueDefition(Packet packet, string vdn, string vd, string v)
+		{
+			if (vdn.StartsWith("Vector2"))
 			{
-				packet.Parameter.ValueDefinition = JsonConvert.DeserializeObject<TOUIBoolean>(v.Parameter.ValueDefinition.ToString());
-				packet.Parameter.Value = bool.Parse(v.Parameter.Value.ToString());
+				//expect something in the form: Vector2<Number<float32>,Number<float32>>
+				//assume both components of the vector have the same type
+				//so only look for the first one
+				var dimensions = 0;
+				
+				//for assume float2
+				//TODO: there must be a better way to deserialize this
+				packet.Parameter.ValueDefinition = JsonConvert.DeserializeObject<TOUIVector2<TOUINumber<float>,TOUINumber<float>>>(vd);
+				packet.Parameter.Value = v.ToString();
+			}
+			else if (vdn.StartsWith("Boolean"))
+			{
+				packet.Parameter.ValueDefinition = JsonConvert.DeserializeObject<TOUIBoolean>(vd);
+				packet.Parameter.Value = bool.Parse(v);
 			}		
 			else if (vdn.StartsWith("Number"))
 			{	
 				if (vdn.EndsWith("<int32>"))
 				{
-					packet.Parameter.ValueDefinition = JsonConvert.DeserializeObject<TOUINumber<int>>(v.Parameter.ValueDefinition.ToString());
-					packet.Parameter.Value = int.Parse(v.Parameter.Value.ToString());
+					packet.Parameter.ValueDefinition = JsonConvert.DeserializeObject<TOUINumber<int>>(vd);
+					packet.Parameter.Value = int.Parse(v);
 				}
 				else if (vdn.EndsWith("<float32>"))
 				{
-					packet.Parameter.ValueDefinition = JsonConvert.DeserializeObject<TOUINumber<float>>(v.Parameter.ValueDefinition.ToString());
-					packet.Parameter.Value = float.Parse(v.Parameter.Value.ToString());
+					packet.Parameter.ValueDefinition = JsonConvert.DeserializeObject<TOUINumber<float>>(vd);
+					packet.Parameter.Value = float.Parse(v);
 				}
 			}
-			else if (vdn == "String")
+			else if (vdn.StartsWith("String"))
 			{
-				packet.Parameter.ValueDefinition = JsonConvert.DeserializeObject<TOUIString>(v.Parameter.ValueDefinition.ToString());
-				packet.Parameter.Value = v.Parameter.Value.ToString();
+				packet.Parameter.ValueDefinition = JsonConvert.DeserializeObject<TOUIString>(vd);
+				packet.Parameter.Value = v;
 			}
-			else if (vdn == "Color")
+			else if (vdn.StartsWith("Color"))
 			{	
-				packet.Parameter.ValueDefinition = JsonConvert.DeserializeObject<TOUIColor>(v.Parameter.ValueDefinition.ToString());
-				packet.Parameter.Value = JsonConvert.DeserializeObject<System.Drawing.Color>(v.Parameter.Value.ToString());
+				packet.Parameter.ValueDefinition = JsonConvert.DeserializeObject<TOUIColor>(vd);
+				packet.Parameter.Value = JsonConvert.DeserializeObject<System.Drawing.Color>(v + ", 0");
 			}
-			else if (vdn == "Enum")
+			else if (vdn.StartsWith("Enum"))
 			{
-				packet.Parameter.ValueDefinition = JsonConvert.DeserializeObject<TOUIEnum>(v.Parameter.ValueDefinition.ToString());
-				packet.Parameter.Value = JsonConvert.DeserializeObject<int>(v.Parameter.Value.ToString());
+				packet.Parameter.ValueDefinition = JsonConvert.DeserializeObject<TOUIEnum>(vd);
+				packet.Parameter.Value = int.Parse(v);
 			}
 //			var serializer = CsPickler.CreateJsonSerializer();
 //			return serializer.UnPickleOfString<Packet>(json);
 			
-			return packet;
+			//return packet;
 		}
 	}
 }
