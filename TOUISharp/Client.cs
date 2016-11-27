@@ -38,6 +38,7 @@ namespace TOUI
 		
 		void ReceiveCB(Packet packet)
 		{
+			Logger.Log(LogType.Debug, "Client received: " + packet.Command.ToString());
 			switch (packet.Command)
 			{
 				case Command.Add:

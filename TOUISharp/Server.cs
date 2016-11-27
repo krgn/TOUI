@@ -52,6 +52,7 @@ namespace TOUI
 			//dispatch to all clients via transporter
 			var packet = Pack(Command.Add, value);
 			Transporter.Send(packet);
+			Logger.Log(LogType.Debug, "Server sent: Add");
 			
 			return result;
 		}
@@ -77,6 +78,7 @@ namespace TOUI
 			//dispatch to all clients via transporter
 			var packet = Pack(Command.Remove, id);
 			Transporter.Send(packet);
+			Logger.Log(LogType.Debug, "Server sent: Remove");
 			
 			return result;
 		}
