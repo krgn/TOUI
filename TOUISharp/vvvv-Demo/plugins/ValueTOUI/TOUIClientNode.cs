@@ -84,9 +84,14 @@ namespace VVVV.Nodes
 				FTOUIClient.Init();
 			}
 				
-			FOutput.AssignFrom(FValues.Values.Select(v => v.ID + ": " + v.ValueDefinition.ToString() + ": " + v.Value.ToString()));
+			FOutput.AssignFrom(FValues.Values.Select(v => 
+			{
+				if (v == null || v.ValueDefinition == null || v.Value == null)
+				  return "null";
+				else
+				  return v.ID + ": " + v.ValueDefinition.ToString() + ": " + v.Value.ToString();
+			}));
 			//FOutput.AssignFrom(FValues.Values.Select(v => v.ID + ": " + v.ValueDefinition.ToString()));
-			
 		}
 	}
 }

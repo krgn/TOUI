@@ -33,9 +33,6 @@ namespace VVVV.Nodes
 
 		[Output("Output")]
 		public ISpread<string> FOutput;
-		
-		[Output("Serialized")]
-		public ISpread<string> FSerialized;
 
 		[Import()]
 		public ILogger FLogger;
@@ -65,11 +62,11 @@ namespace VVVV.Nodes
 			FHDEHost.ExposedNodeService.NodeAdded += NodeAddedCB;
 			FHDEHost.ExposedNodeService.NodeRemoved += NodeRemovedCB;
 
+			FTOUIServer.Logger = FLogger;
+			
 			//get initial list of exposed ioboxes
 			foreach (var node in FHDEHost.ExposedNodeService.Nodes)
 				NodeAddedCB(node);
-			
-		  	FTOUIServer.Logger = FLogger;
 		}
 		
 		public void Dispose() 
@@ -134,81 +131,113 @@ namespace VVVV.Nodes
 			if (pin.Type == "Value")
 			{
 				/// values: guiType, dimension, default, min, max, stepSize, unitName, precision
-				var dimensions = subtype[1].Trim();
-				if (dimensions == "1")
+				int intStep = 0;
+				float floatStep = 0;
+				if (int.TryParse(subtype[5], out intStep)) //integer
 				{
-					int intStep = 0;
-					float floatStep = 0;
-					if (int.TryParse(subtype[5], out intStep)) //integer
+					int dflt = 0;
+					int.TryParse(subtype[2], out dflt);
+					int min = 0;
+					int.TryParse(subtype[3], out min);
+					int max = 0;
+					int.TryParse(subtype[4], out max);
+					
+					var isbool = (min == 0) && (max == 1);
+					if (isbool)
 					{
-						int dflt = 0;
-						int.TryParse(subtype[2], out dflt);
-						int min = 0;
-						int.TryParse(subtype[3], out min);
-						int max = 0;
-						int.TryParse(subtype[4], out max);
-						
-						var isbool = (min == 0) && (max == 1);
-						if (isbool)
-						{
-							valueDefinition = new TOUIBoolean();
-							valueDefinition.Default = dflt;
-							value = pin[0] == "1";
-						}
-						else
-						{
-							int v;
-							int.TryParse(pin[0], out v);
-							var number = new TOUINumber<int>();
-							number.Default = dflt;
-							number.Min = min;
-							number.Max = max;
-							number.Stepsize = intStep;
-							number.Unit = subtype[6];
-							valueDefinition = number;
-							value = v;
-						}
-					} 
-					else if (float.TryParse(subtype[5], NumberStyles.Float, CultureInfo.InvariantCulture, out floatStep))
+						valueDefinition = new TOUIBoolean();
+						valueDefinition.Default = dflt;
+					}
+					else
 					{
-						float dflt = 0;
-						float.TryParse(subtype[2], NumberStyles.Float, CultureInfo.InvariantCulture, out dflt);
-						float min = 0;
-						float.TryParse(subtype[3], NumberStyles.Float, CultureInfo.InvariantCulture, out min);
-						float max = 0;
-						float.TryParse(subtype[4], NumberStyles.Float, CultureInfo.InvariantCulture, out max);
-						float precision = 0;
-						float.TryParse(subtype[7], NumberStyles.Float, CultureInfo.InvariantCulture, out precision);
-						
-						float f = 0;
-						if (sliceCount == 1)
-						{
-							float.TryParse(pin[0], NumberStyles.Float, CultureInfo.InvariantCulture, out f);
-							value = f;
-						}
-						else
-						{
-							float[] fs = new float[sliceCount];
-							for (int i = 0; i<sliceCount; i++)
-							{
-								f = 0;
-								float.TryParse(pin[i], NumberStyles.Float, CultureInfo.InvariantCulture, out f);
-								fs[i] = f;
-							}	
-							value = fs;								
-						}
-						
-						
-						var number = new TOUINumber<float>();
+						var number = new TOUINumber<int>();
 						number.Default = dflt;
 						number.Min = min;
 						number.Max = max;
-						number.Stepsize = floatStep;
-						number.Unit = subtype[6].Trim();
+						number.Stepsize = intStep;
+						number.Unit = subtype[6];
 						valueDefinition = number;
 					}
 				}
-				//else //vectors
+				else if (float.TryParse(subtype[5], NumberStyles.Float, CultureInfo.InvariantCulture, out floatStep))
+				{
+					float dflt = 0;
+					float.TryParse(subtype[2], NumberStyles.Float, CultureInfo.InvariantCulture, out dflt);
+					float min = 0;
+					float.TryParse(subtype[3], NumberStyles.Float, CultureInfo.InvariantCulture, out min);
+					float max = 0;
+					float.TryParse(subtype[4], NumberStyles.Float, CultureInfo.InvariantCulture, out max);
+					float precision = 0;
+					float.TryParse(subtype[7], NumberStyles.Float, CultureInfo.InvariantCulture, out precision);
+					
+					var number = new TOUINumber<float>();
+					number.Default = dflt;
+					number.Min = min;
+					number.Max = max;
+					number.Stepsize = floatStep;
+					number.Unit = subtype[6].Trim();
+					valueDefinition = number;
+				}
+				
+				var dimensions = int.Parse(subtype[1]);
+				if (valueDefinition is TOUIBoolean)
+				{
+					value = pin[0] == "1";
+				}
+				else if (valueDefinition is TOUINumber<int>)
+				{
+					int[] vs = new int[sliceCount];
+					for (int i=0; i<sliceCount; i++)
+						int.TryParse(pin[i], out vs[i]);
+					
+					if (sliceCount == 1)
+						value = vs[0];
+					else
+						value = vs;
+				}
+				else if (valueDefinition is TOUINumber<float>)
+				{
+					var itemCount = sliceCount*dimensions;
+					float[] vs = new float[itemCount];
+					for (int i=0; i<itemCount; i++)
+						float.TryParse(pin[i], NumberStyles.Float, CultureInfo.InvariantCulture, out vs[i]);
+					
+					if (itemCount == 1)
+						value = vs[0];
+					else
+					{
+						object[] slices = new object[sliceCount];
+						for (int i=0; i<sliceCount; i++)
+						{
+							slices[i] = vs.Take(dimensions).ToArray();
+						}
+						
+						value = slices;
+					}
+						
+					//vectorize the valueDefinition
+					if (dimensions == 2)
+					{
+						var vectorXDefinition = (TOUINumber<float>) valueDefinition;
+						var vectorYDefinition = (TOUINumber<float>) valueDefinition;
+						valueDefinition = new TOUIVector2<TOUINumber<float>, TOUINumber<float>>(vectorXDefinition, vectorYDefinition);
+					} 
+					else if (dimensions == 3)
+					{
+						var vectorXDefinition = (TOUINumber<float>) valueDefinition;
+						var vectorYDefinition = (TOUINumber<float>) valueDefinition;
+						var vectorZDefinition = (TOUINumber<float>) valueDefinition;
+						valueDefinition = new TOUIVector3<TOUINumber<float>, TOUINumber<float>, TOUINumber<float>>(vectorXDefinition, vectorYDefinition, vectorZDefinition);
+					}
+					else if (dimensions == 4)
+					{
+						var vectorXDefinition = (TOUINumber<float>) valueDefinition;
+						var vectorYDefinition = (TOUINumber<float>) valueDefinition;
+						var vectorZDefinition = (TOUINumber<float>) valueDefinition;
+						var vectorWDefinition = (TOUINumber<float>) valueDefinition;
+						valueDefinition = new TOUIVector4<TOUINumber<float>, TOUINumber<float>, TOUINumber<float>, TOUINumber<float>>(vectorXDefinition, vectorYDefinition, vectorZDefinition, vectorWDefinition);
+					}
+				}
 			}
 			else if (pin.Type == "String")
 			{
@@ -256,8 +285,11 @@ namespace VVVV.Nodes
 			if (tag != null)
 				valueDefinition.UserData = tag.Spread.Trim('|');
         	
+			
 			parameter.ValueDefinition = valueDefinition;
 			parameter.Value = value;
+			
+			//FLogger.Log(LogType.Debug, value.ToString());
 			
 			return parameter;
 		}
