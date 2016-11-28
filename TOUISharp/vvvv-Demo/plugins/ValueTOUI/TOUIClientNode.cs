@@ -17,7 +17,10 @@ using TOUI;
 namespace VVVV.Nodes
 {
 	#region PluginInfo
-	[PluginInfo(Name = "TOUI", Category = "Value", Version = "Client", Help = "Basic template with one value in/out", Tags = "")]
+	[PluginInfo(Name = "TOUI", 
+				Category = "VVVV", 
+				Version = "Client", 
+				Help = "A simple TOUI client test", Tags = "")]
 	#endregion PluginInfo
 	public class ClientValueTOUINode : IPluginEvaluate, IPartImportsSatisfiedNotification, IDisposable
 	{
@@ -25,13 +28,16 @@ namespace VVVV.Nodes
 		[Input("Init", IsBang=true)]
 		public ISpread<bool> FInit;
 
+		[Input("Input")]
+		public IDiffSpread<int> FInput;
+		
 		[Output("Output")]
 		public ISpread<string> FOutput;
 
 		[Import()]
 		public ILogger FLogger;
 		
-		Dictionary<string, Parameter> FValues = new Dictionary<string, Parameter>();
+		Dictionary<string, Parameter> FParams = new Dictionary<string, Parameter>();
 		Client FTOUIClient;
 		#endregion fields & pins
 		
@@ -42,9 +48,9 @@ namespace VVVV.Nodes
 			FTOUIClient.Transporter = new TOUI.UDPClientTransporter("127.0.0.1", 4567, 4568);
 			FTOUIClient.Transporter.Serializer = new TOUI.JsonSerializer();
 			
-			FTOUIClient.ValueAdded = ValueAdded;
-			FTOUIClient.ValueUpdated = ValueUpdated; 
-			FTOUIClient.ValueRemoved = ValueRemoved;
+			FTOUIClient.ParameterAdded = ParameterAdded;
+			FTOUIClient.ParameterUpdated = ParameterUpdated; 
+			FTOUIClient.ParameterRemoved = ParameterRemoved;
 		}
 		
 		public void OnImportsSatisfied()
@@ -58,20 +64,21 @@ namespace VVVV.Nodes
 			FTOUIClient.Dispose();
 		}
 		
-		private void ValueAdded(Parameter value)
+		private void ParameterAdded(Parameter param)
 		{
-			if (!FValues.ContainsKey(value.ID))
-				FValues.Add(value.ID, value);
+			if (!FParams.ContainsKey(param.ID))
+				FParams.Add(param.ID, param);
 		}
 		
-		private void ValueUpdated(Parameter value)
+		private void ParameterUpdated(Parameter param)
 		{
-			
+			if (FParams.ContainsKey(param.ID))
+				FParams[param.ID].Value = param.Value;
 		}
 		
-		private void ValueRemoved(string id)
+		private void ParameterRemoved(string id)
 		{
-			FValues.Remove(id);
+			FParams.Remove(id);
 		}
 		
 		//called when data for any output pin is requested
@@ -80,18 +87,28 @@ namespace VVVV.Nodes
 			//request all values from the server
 			if (FInit[0])
 			{
-				FValues.Clear();
+				FParams.Clear();
 				FTOUIClient.Init();
 			}
-				
-			FOutput.AssignFrom(FValues.Values.Select(v => 
+			
+			//feedback value test
+			if (FInput.IsChanged)
 			{
-				if (v == null || v.ValueDefinition == null || v.Value == null)
-				  return "null";
+				var param = FParams.Values.Where(p => p.ValueDefinition.Label == "My Float").FirstOrDefault();
+				if (param != null)
+				{
+					param.Value = FInput[0];
+					FTOUIClient.Update(param);
+				}
+			}
+				
+			FOutput.AssignFrom(FParams.Values.Select(v => 
+			{
+				if (v.ValueDefinition == null || v.Value == null)
+				  return v.ID;
 				else
 				  return v.ID + ": " + v.ValueDefinition.ToString() + ": " + v.Value.ToString();
 			}));
-			//FOutput.AssignFrom(FValues.Values.Select(v => v.ID + ": " + v.ValueDefinition.ToString()));
 		}
 	}
 }
