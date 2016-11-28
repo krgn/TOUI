@@ -163,6 +163,8 @@ namespace TOUI
 	}
 	
 	public class TOUIDictionary<K, V>: ValueDefinition
+	where K: ValueDefinition
+	where V: ValueDefinition
 	{
 		public K KeyDefinition { get; set; }
 		public V ValueDefinition { get; set; }

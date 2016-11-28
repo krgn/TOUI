@@ -41,8 +41,6 @@ namespace TOUI
 			
 			packet.Parameter = new Parameter(p.Parameter.ID.ToString());
 			
-			//MessageBox.Show(packet.Command.ToString());
-			
 			if (packet.Command == Command.Remove)
 				return packet;
 			
@@ -50,8 +48,6 @@ namespace TOUI
 			var vdn = p.Parameter.ValueDefinition.Name.ToString();
 			var vd = p.Parameter.ValueDefinition.ToString();
 			var v = p.Parameter.Value.ToString();
-			
-//			MessageBox.Show(vd);
 			
 			DecodeValueDefition(packet, vdn, vd, v);
 			return packet;
@@ -103,6 +99,10 @@ namespace TOUI
 			{
 				packet.Parameter.ValueDefinition = JsonConvert.DeserializeObject<TOUIEnum>(vd);
 				packet.Parameter.Value = int.Parse(v);
+			}
+			else if (vdn.StartsWith("Dictionary"))
+			{
+				//MessageBox.Show(v);
 			}
 //			var serializer = CsPickler.CreateJsonSerializer();
 //			return serializer.UnPickleOfString<Packet>(json);
