@@ -1,7 +1,5 @@
 using System;
 using System.Text;
-using Nessos.CsPickler;
-using Nessos.FsPickler;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 
