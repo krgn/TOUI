@@ -91,7 +91,7 @@ namespace TOUI
 		public string Subtype { get; set; }
 		
 		public TOUIColor(string subtype)
-		: base ("Color", Color.FromArgb(0))
+		: base ("Color", null)
 		{
 			Subtype = subtype;
 		}

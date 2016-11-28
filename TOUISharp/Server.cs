@@ -23,13 +23,13 @@ namespace TOUI
 			}
 		}
 		
-		public Action<Parameter> ValueUpdated;
+		public Action<Parameter> ParameterUpdated;
 		
-		Dictionary<string, Parameter> FValues = new Dictionary<string, Parameter>();
+		Dictionary<string, Parameter> FParams = new Dictionary<string, Parameter>();
 		
 		public string[] IDs 
 		{
-			get { return FValues.Keys.ToArray(); }
+			get { return FParams.Keys.ToArray(); }
 		}
 		
 		public override void Dispose()
@@ -40,12 +40,12 @@ namespace TOUI
 				FTransporter.Dispose();
 		}
 		
-		public bool AddValue(Parameter value)
+		public bool AddParameter(Parameter value)
 		{
 			var result = false;
-			if (!FValues.ContainsKey(value.ID))
+			if (!FParams.ContainsKey(value.ID))
 			{
-				FValues.Add(value.ID, value);
+				FParams.Add(value.ID, value);
 				result = true;
 			}
 			
@@ -57,23 +57,30 @@ namespace TOUI
 			return result;
 		}
 		
-		public bool UpdateValue(Parameter value)
+		public bool UpdateParameter(Parameter value)
 		{
-			var result = false;
-			if (FValues.ContainsKey(value.ID))
-				FValues.Remove(value.ID);
+			Logger.Log(LogType.Debug, "Server Update: " + value.ID);
 			
-			FValues.Add(value.ID, value);
+			var result = false;
+			if (FParams.ContainsKey(value.ID))
+				FParams.Remove(value.ID);
+			
+			FParams.Add(value.ID, value);
 			result = true;
 			
 			//dispatch to all clients via transporter
+			var packet = Pack(Command.Update, value);
+			
+			
+			Transporter.Send(packet);
+			Logger.Log(LogType.Debug, "Server sent: Update");
 			
 			return result;
 		}
 		
-		public bool RemoveValue(string id)
+		public bool RemoveParameter(string id)
 		{
-			var result = FValues.Remove(id);
+			var result = FParams.Remove(id);
 			
 			//dispatch to all clients via transporter
 			var packet = Pack(Command.Remove, id);
@@ -92,14 +99,14 @@ namespace TOUI
 			{
 				case Command.Update:
 				//inform the application
-				if (ValueUpdated != null)
-					ValueUpdated(packet.Parameter);
+				if (ParameterUpdated != null)
+					ParameterUpdated(packet.Parameter);
 				break;
 				
 				case Command.Init:
-				//client requests all values
-				foreach (var value in FValues.Values)
-					Transporter.Send(Pack(Command.Add, value));
+				//client requests all parameters
+				foreach (var param in FParams.Values)
+					Transporter.Send(Pack(Command.Add, param));
 				break;
 			}
 		}

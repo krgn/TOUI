@@ -32,9 +32,15 @@ namespace TOUI
 			Logger.Log(LogType.Debug, "Client sent Init");
 		}
 		
-		public Action<Parameter> ValueAdded;
-		public Action<Parameter> ValueUpdated;
-		public Action<string> ValueRemoved;
+		public void Update(Parameter param)
+		{
+			Transporter.Send(Pack(Command.Update, param));
+			Logger.Log(LogType.Debug, "Client sent Update");
+		}
+		
+		public Action<Parameter> ParameterAdded;
+		public Action<Parameter> ParameterUpdated;
+		public Action<string> ParameterRemoved;
 		
 		void ReceiveCB(Packet packet)
 		{
@@ -43,20 +49,20 @@ namespace TOUI
 			{
 				case Command.Add:
 				//inform the application
-				if (ValueAdded != null)
-					ValueAdded(packet.Parameter);
+				if (ParameterAdded != null)
+					ParameterAdded(packet.Parameter);
 				break;
 				
 				case Command.Update:
 				//inform the application
-				if (ValueUpdated != null)
-					ValueUpdated(packet.Parameter);
+				if (ParameterUpdated != null)
+					ParameterUpdated(packet.Parameter);
 				break;
 				
 				case Command.Remove:
 				//inform the application
-				if (ValueRemoved != null)
-					ValueRemoved(packet.Parameter.ID);
+				if (ParameterRemoved != null)
+					ParameterRemoved(packet.Parameter.ID);
 				break;
 			}
 		}
