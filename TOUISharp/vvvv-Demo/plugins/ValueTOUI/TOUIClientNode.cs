@@ -46,7 +46,7 @@ namespace VVVV.Nodes
 			FTOUIClient = new Client();
 			
 			FTOUIClient.Transporter = new TOUI.UDPClientTransporter("127.0.0.1", 4567, 4568);
-			FTOUIClient.Transporter.Serializer = new TOUI.JsonSerializer();
+			FTOUIClient.Serializer = new TOUI.JsonSerializer();
 			
 			FTOUIClient.ParameterAdded = ParameterAdded;
 			FTOUIClient.ParameterUpdated = ParameterUpdated; 

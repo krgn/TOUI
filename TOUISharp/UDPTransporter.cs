@@ -21,8 +21,6 @@ namespace TOUI
 		private Thread FThread;
 		private bool FListening;
 		
-		public ISerializer Serializer {get; set;}
-		
 		public UDPServerTransporter(string remoteHost, int remotePort, int localPort)
 		{
 			FUDPSender = new UdpClient(remoteHost, remotePort);
@@ -53,14 +51,13 @@ namespace TOUI
 			}	
 		}
 		
-		public void Send(Packet packet)
+		public void Send(byte[] bytes)
 		{
 			//send to all clients
-			var bytes = Serializer.Serialize(packet);
 			FUDPSender.Send(bytes, bytes.Length);
 		}
 		
-		public Action<Packet> Received {get; set;}
+		public Action<byte[]> Received {get; set;}
 		
 		private void ListenToUDP()
 		{
@@ -71,8 +68,8 @@ namespace TOUI
 					IPEndPoint ipEndPoint = null;
 					var bytes = FUDPReceiver.Receive(ref ipEndPoint);
 					
-					if (bytes.Length > 0 && Received != null && Serializer != null)
-						Received(Serializer.Deserialize(bytes));
+					if (bytes.Length > 0 && Received != null)
+						Received(bytes);
 				}
 				catch (Exception e)
 				{
@@ -88,8 +85,6 @@ namespace TOUI
 		private UdpClient FUDPReceiver;
 		private Thread FThread;
 		private bool FListening;
-		
-		public ISerializer Serializer {get; set;}
 		
 		public UDPClientTransporter(string remoteHost, int remotePort, int localPort)
 		{
@@ -121,13 +116,12 @@ namespace TOUI
 			}	
 		}
 		
-		public void Send(Packet packet)
+		public void Send(byte[] bytes)
 		{
-			var bytes = Serializer.Serialize(packet);
 			var r = FUDPSender.Send(bytes, bytes.Length);
 		}
 		
-		public Action<Packet> Received {get; set;}
+		public Action<byte[]> Received {get; set;}
 		
 		private void ListenToUDP()
 		{
@@ -138,8 +132,8 @@ namespace TOUI
 					IPEndPoint ipEndPoint = null;
 					var bytes = FUDPReceiver.Receive(ref ipEndPoint);
 					
-					if (Received != null && Serializer != null)
-						Received(Serializer.Deserialize(bytes));
+					if (bytes.Length > 0 && Received != null)
+						Received(bytes);
 				}
 				catch (Exception e)
 				{

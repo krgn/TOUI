@@ -52,7 +52,7 @@ namespace VVVV.Nodes
 			//provide an IServerTransporter
 			FTOUIServer.Transporter = new TOUI.UDPServerTransporter("127.0.0.1", 4568, 4567);
 			//provide an ISerializer
-			FTOUIServer.Transporter.Serializer = new TOUI.JsonSerializer();
+			FTOUIServer.Serializer = new TOUI.JsonSerializer();
 			
 			//subscribe to the value-updated event
 			FTOUIServer.ParameterUpdated = ParameterUpdated;

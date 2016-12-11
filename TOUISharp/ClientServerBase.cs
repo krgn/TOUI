@@ -7,33 +7,34 @@ namespace TOUI
     
     public abstract class Base: IDisposable
 	{
-		public ILogger Logger {get; set;}
+		public ILogger Logger { get; set; }
+		public ISerializer Serializer { get; set; }
 		
-		protected Packet Pack(Command command, Parameter parameter)
+		protected byte[] Pack(Command command, Parameter parameter)
 		{
 			var packet = new Packet();
 			packet.Command = command;
 			packet.Parameter = parameter;
 			
-			return packet;
+			return Serializer.Serialize(packet);
 		}
 		
-		protected Packet Pack(Command command, string id)
+		protected byte[] Pack(Command command, string id)
 		{
 			var packet = new Packet();
 			packet.Command = command;
 			packet.Parameter = new Parameter(id);
 			
-			return packet;
+			return Serializer.Serialize(packet);
 		}
 		
-		protected Packet Pack(Command command)
+		protected byte[] Pack(Command command)
 		{
 			var packet = new Packet();
 			packet.Command = command;
 //			packet.Parameter = null; //new Parameter("");
 			
-			return packet;
+			return Serializer.Serialize(packet);
 		}
 		
 		public virtual void Dispose()

@@ -10,15 +10,13 @@ namespace TOUI
 	
 	public interface IServerTransporter: IDisposable
 	{
-		ISerializer Serializer {get; set;}
-		void Send(Packet packet);
-		Action<Packet> Received {get; set;}
+		void Send(byte[] packet);
+		Action<byte[]> Received {get; set;}
 	}
 	
 	public interface IClientTransporter: IDisposable
 	{
-		ISerializer Serializer { get; set; }
-		void Send(Packet packet);
-		Action<Packet> Received {get; set;}
+		void Send(byte[] packet);
+		Action<byte[]> Received {get; set;}
 	}
 }

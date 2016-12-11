@@ -91,9 +91,10 @@ namespace TOUI
 		}
 		
 		#region Transporter
-		void ReceiveCB(Packet packet)
+		void ReceiveCB(byte[] bytes)
 		{
-			Logger.Log(LogType.Debug, "Server received packet from Client");
+			var packet = Serializer.Deserialize(bytes);
+			Logger.Log(LogType.Debug, "Server received packet from Client: " + packet.Command.ToString());
 			
 			switch (packet.Command)
 			{

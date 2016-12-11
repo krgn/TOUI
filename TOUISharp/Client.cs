@@ -42,8 +42,9 @@ namespace TOUI
 		public Action<Parameter> ParameterUpdated;
 		public Action<string> ParameterRemoved;
 		
-		void ReceiveCB(Packet packet)
+		void ReceiveCB(byte[] bytes)
 		{
+			var packet = Serializer.Deserialize(bytes);
 			Logger.Log(LogType.Debug, "Client received: " + packet.Command.ToString());
 			switch (packet.Command)
 			{
