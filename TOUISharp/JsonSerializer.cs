@@ -16,12 +16,29 @@ namespace TOUI
 //			json = serializer.PickleToString(packet);			
 				var serializerSettings = new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Ignore };
 				json = JsonConvert.SerializeObject(packet/*, serializerSettings*/);
+				json = json.Replace("\"Command\":0,", "\"Command\":add,");
+				json = json.Replace("\"Command\":1,", "\"Command\":update,");
+				json = json.Replace("\"Command\":2,", "\"Command\":remove,");
+				json = json.Replace("\"Command\":3,", "\"Command\":init,");
+				json = json.ToLower();
 			}
 			catch (Exception e)
 			{
 				MessageBox.Show(e.ToString());
 			}
+			//MessageBox.Show(json);
 			return Encoding.ASCII.GetBytes(json);	
+		}
+		
+		static string UppercaseFirst(string s)
+		{
+			// Check for empty string.
+			if (string.IsNullOrEmpty(s))
+			{
+			    return string.Empty;
+			}
+			// Return char and concat substring.
+			return char.ToUpper(s[0]) + s.Substring(1);
 		}
 		
 		public Packet Deserialize(byte[] bytes)
@@ -33,7 +50,7 @@ namespace TOUI
 			
 			var packet = new Packet();
 			Command c;
-			Command.TryParse(p.Command.ToString(), out c);
+			Command.TryParse(UppercaseFirst(p.command.ToString()), out c);
 			packet.Command = c;
 			
 			if (packet.Command == Command.Init)
