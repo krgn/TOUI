@@ -50,7 +50,7 @@ namespace VVVV.Nodes
 			//initialize the TOUI Server
 			FTOUIServer = new TOUI.Server();
 			//provide an IServerTransporter
-			FTOUIServer.Transporter = new TOUI.UDPServerTransporter("127.0.0.1", 4568, 4567);
+			//FTOUIServer.Transporter = new TOUI.UDPServerTransporter("127.0.0.1", 4568, 4567);
 			FTOUIServer.Transporter = new TOUI.WebsocketServerTransporter("127.0.0.1", 8181);
 			//provide an ISerializer
 			FTOUIServer.Serializer = new TOUI.JsonSerializer();
