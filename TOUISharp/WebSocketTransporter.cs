@@ -35,13 +35,16 @@ namespace TOUI
                     };
             	socket.OnMessage = message =>
                     {
-                    	FAllSockets.ToList().ForEach(s => s.Send("Echo: " + message));
+                    	if (message.Length > 0 && Received != null)
+							Received(Encoding.ASCII.GetBytes(message));
+                    	
+                    	//FAllSockets.ToList().ForEach(s => s.Send("Echo: " + message));
             		};
-                socket.OnBinary = bytes =>
-                    {
-                        if (bytes.Length > 0 && Received != null)
-							Received(bytes);
-                    };
+//                socket.OnBinary = bytes =>
+//                    {
+//                        if (bytes.Length > 0 && Received != null)
+//							Received(bytes);
+//                    };
 			});
 		}
 		
