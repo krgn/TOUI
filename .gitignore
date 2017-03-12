@@ -1,4 +1,6 @@
-
+packages/
+obj/
+.vs/
 # .v4p backup files
 *~.xml
 
