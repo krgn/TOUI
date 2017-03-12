@@ -6,15 +6,20 @@ namespace TOUI
 {
     public class Packet
 	{
-		public Command Command { get; set; }
-		public Parameter Parameter { get; set; }
+        [JsonProperty("command")]
+        public Command Command { get; set; }
+        [JsonProperty("parameter")]
+        public Parameter Parameter { get; set; }
 	}
 	
 	public class Parameter
 	{
-		public string ID { get; set; }
-		public ValueDefinition ValueDefinition { get; set; }
-		public object Value { get; set; }
+        [JsonProperty("id")]
+        public string ID { get; set; }
+        [JsonProperty("valuedefinition")]
+        public ValueDefinition ValueDefinition { get; set; }
+        [JsonProperty("value")]
+        public object Value { get; set; }
 		//public Widget Widget { get; set; }
 		
 		public Parameter (string id)
@@ -27,11 +32,16 @@ namespace TOUI
 	
 	public class ValueDefinition
 	{
-		public string Name { get; set; }
-		public string Label { get; set; }
-		public string Description { get; set; }
-		public object Default { get; set; }
-		public object UserData { get; set; }
+        [JsonProperty("name")]
+        public string Name { get; set; }
+        [JsonProperty("label")]
+        public string Label { get; set; }
+        [JsonProperty("description")]
+        public string Description { get; set; }
+        [JsonProperty("default")]
+        public object Default { get; set; }
+        [JsonProperty("userdata")]
+        public object UserData { get; set; }
 		
 		public ValueDefinition(string name, object _default)
 		{
@@ -56,12 +66,18 @@ namespace TOUI
 	
 	public class TOUINumber<T>: ValueDefinition
 	{
-		public T Min { get; set; }
-		public T Max { get; set; }
-		public T Stepsize { get; set; }
-		public string Unit { get; set; }
-		public bool Cyclic { get; set; }
-		public bool Pow2 { get; set; }
+        [JsonProperty("min")]
+        public T Min { get; set; }
+        [JsonProperty("max")]
+        public T Max { get; set; }
+        [JsonProperty("stepsize")]
+        public T Stepsize { get; set; }
+        [JsonProperty("unit")]
+        public string Unit { get; set; }
+        [JsonProperty("cyclic")]
+        public bool Cyclic { get; set; }
+        [JsonProperty("pow2")]
+        public bool Pow2 { get; set; }
 		
 		public TOUINumber()
 		: base ("Number", 0)
@@ -75,10 +91,14 @@ namespace TOUI
 	
 	public class TOUIString: ValueDefinition
 	{
-		public string Subtype { get; set; }
-		public string Filemask { get; set; }
-		public string MaxChars { get; set; }
-		public bool Multiline { get; set; }
+        [JsonProperty("subtype")]
+        public string Subtype { get; set; }
+        [JsonProperty("filemask")]
+        public string Filemask { get; set; }
+        [JsonProperty("maxchars")]
+        public string MaxChars { get; set; }
+        [JsonProperty("multiline")]
+        public bool Multiline { get; set; }
 		
 		public TOUIString()
 		: base ("String", "")
@@ -88,7 +108,8 @@ namespace TOUI
 	
 	public class TOUIColor: ValueDefinition
 	{
-		public string Subtype { get; set; }
+        [JsonProperty("subtype")]
+        public string Subtype { get; set; }
 		
 		public TOUIColor(string subtype)
 		: base ("Color", null)
@@ -99,7 +120,8 @@ namespace TOUI
 	
 	public class TOUIEnum: ValueDefinition
 	{
-		public string[] Entries { get; set; }
+        [JsonProperty("entries")]
+        public string[] Entries { get; set; }
 		
 		public TOUIEnum(string[] entries)
 		: base ("Enum", 0)
@@ -112,7 +134,9 @@ namespace TOUI
 	where X: ValueDefinition
 	where Y: ValueDefinition
 	{
+        [JsonProperty("xsubtype")]
 		public X XSubtype { get; set; }
+        [JsonProperty("ysubtype")]
 		public Y YSubtype { get; set; }
 		
 		public TOUIVector2(X xSubtype, Y ySubtype)
@@ -128,9 +152,12 @@ namespace TOUI
 	where Y: ValueDefinition
 	where Z: ValueDefinition
 	{
+        [JsonProperty("xsubtype")]
 		public X XSubtype { get; set; }
-		public Y YSubtype { get; set; }
-		public Z ZSubtype { get; set; }
+        [JsonProperty("ysubtype")]
+        public Y YSubtype { get; set; }
+        [JsonProperty("zsubtype")]
+        public Z ZSubtype { get; set; }
 		
 		public TOUIVector3(X xSubtype, Y ySubtype, Z zSubtype)
 		: base ("Vector3<" + xSubtype.Name + "," + ySubtype.Name + "," + zSubtype.Name + ">", null)
@@ -147,10 +174,14 @@ namespace TOUI
 	where Z: ValueDefinition
 	where W: ValueDefinition
 	{
-		public X XSubtype { get; set; }
-		public Y YSubtype { get; set; }
-		public Z ZSubtype { get; set; }
-		public W WSubtype { get; set; }
+        [JsonProperty("xsubtype")]
+        public X XSubtype { get; set; }
+        [JsonProperty("ysubtype")]
+        public Y YSubtype { get; set; }
+        [JsonProperty("zsubtype")]
+        public Z ZSubtype { get; set; }
+        [JsonProperty("wsubtype")]
+        public W WSubtype { get; set; }
 		
 		public TOUIVector4(X xSubtype, Y ySubtype, Z zSubtype, W wSubtype)
 		: base ("Vector4<" + xSubtype.Name + "," + ySubtype.Name + "," + zSubtype.Name + "," + wSubtype.Name + ">", null)
@@ -166,8 +197,10 @@ namespace TOUI
 	where K: ValueDefinition
 	where V: ValueDefinition
 	{
-		public K KeyDefinition { get; set; }
-		public V ValueDefinition { get; set; }
+        [JsonProperty("key")]
+        public K KeyDefinition { get; set; }
+        [JsonProperty("value")]
+        public V ValueDefinition { get; set; }
 		
 		public TOUIDictionary(K keyDefinition, V valueDefinition)
 		: base ("Dictionary", null)

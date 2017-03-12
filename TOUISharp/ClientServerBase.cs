@@ -1,10 +1,27 @@
 using System;
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using VVVV.Core.Logging;
 
 namespace TOUI
 {
-    public enum Command { Add, Update, Remove, Init };
-    
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum Command
+    {
+        [EnumMember(Value = "add")]
+        Add,
+
+        [EnumMember(Value = "update")]
+        Update,
+
+        [EnumMember(Value = "remove")]
+        Remove,
+
+        [EnumMember(Value = "init")]
+        Init
+    };
+
     public abstract class Base: IDisposable
 	{
 		public ILogger Logger { get; set; }

@@ -27,17 +27,6 @@ namespace TOUI
             return Encoding.ASCII.GetBytes(json);
         }
 
-        static string UppercaseFirst(string s)
-        {
-            // Check for empty string.
-            if (string.IsNullOrEmpty(s))
-            {
-                return string.Empty;
-            }
-            // Return char and concat substring.
-            return char.ToUpper(s[0]) + s.Substring(1);
-        }
-
         public Packet Deserialize(byte[] bytes)
         {
             var json = Encoding.ASCII.GetString(bytes);
@@ -47,7 +36,7 @@ namespace TOUI
 
             var packet = new Packet();
             Command c;
-            Command.TryParse(UppercaseFirst(p.command.ToString()), out c);
+            Command.TryParse(p.Command.ToString(), out c);
             packet.Command = c;
 
             if (packet.Command == Command.Init)
@@ -64,9 +53,9 @@ namespace TOUI
         	}
 
             //decode to specific datatype
-            var vdn = p.parameter.valuedefinition.name.ToString();
-            var vd = p.parameter.valuedefinition.ToString();
-            var v = p.parameter.value.ToString();
+            var vdn = p.Parameter.Valuedefinition.name.ToString();
+            var vd = p.Parameter.Valuedefinition.ToString();
+            var v = p.Parameter.Value.ToString();
 
             DecodeValueDefition(packet, vdn, vd, v);
             return packet;
