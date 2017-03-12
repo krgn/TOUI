@@ -31,7 +31,7 @@ namespace TOUI
 		{
 			var packet = new Packet();
 			packet.Command = command;
-			packet.Parameter = parameter;
+			packet.Data = parameter;
 			
 			return Serializer.Serialize(packet);
 		}
@@ -40,7 +40,7 @@ namespace TOUI
 		{
 			var packet = new Packet();
 			packet.Command = command;
-			packet.Parameter = new Parameter(id);
+			packet.Data = new Parameter(id);
 			
 			return Serializer.Serialize(packet);
 		}

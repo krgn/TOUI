@@ -10,7 +10,7 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <ReferencePath>..\..\..\..\..\vvvv\public\vvvv45\lib\core\;..\..\..\..\..\vvvv\public\vvvv45\lib\nodes\plugins\</ReferencePath>
+    <ReferencePath>..\..\..\..\..\..\..\Desktop\vvvvs\vvvv_50beta35.2_x86\lib\core\;..\..\..\..\..\..\..\Desktop\vvvvs\vvvv_50beta35.2_x86\lib\nodes\plugins\;..\..\..\..\..\vvvv\public\vvvv45\lib\core\;..\..\..\..\..\vvvv\public\vvvv45\lib\nodes\plugins\</ReferencePath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
@@ -48,6 +48,7 @@
     <Reference Include="System.ComponentModel.Composition.Codeplex" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />

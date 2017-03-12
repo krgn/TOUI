@@ -51,19 +51,19 @@ namespace TOUI
 				case Command.Add:
 				//inform the application
 				if (ParameterAdded != null)
-					ParameterAdded(packet.Parameter);
+					ParameterAdded(packet.Data);
 				break;
 				
 				case Command.Update:
 				//inform the application
 				if (ParameterUpdated != null)
-					ParameterUpdated(packet.Parameter);
+					ParameterUpdated(packet.Data);
 				break;
 				
 				case Command.Remove:
 				//inform the application
 				if (ParameterRemoved != null)
-					ParameterRemoved(packet.Parameter.ID);
+					ParameterRemoved(packet.Data.ID);
 				break;
 			}
 		}

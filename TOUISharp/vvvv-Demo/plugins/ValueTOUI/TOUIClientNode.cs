@@ -94,7 +94,7 @@ namespace VVVV.Nodes
 			//feedback value test
 			if (FInput.IsChanged)
 			{
-				var param = FParams.Values.Where(p => p.ValueDefinition.Label == "My Float").FirstOrDefault();
+				var param = FParams.Values.Where(p => p.Label == "My Float").FirstOrDefault();
 				if (param != null)
 				{
 					param.Value = FInput[0];
@@ -104,10 +104,12 @@ namespace VVVV.Nodes
 				
 			FOutput.AssignFrom(FParams.Values.Select(v => 
 			{
-				if (v.ValueDefinition == null || v.Value == null)
-				  return v.ID;
+				if (v.Type == null && v.Value == null)
+					return v.ID;
+				else if (v.Value == null)
+					return v.ID + ": " + v.Type.ToString();
 				else
-				  return v.ID + ": " + v.ValueDefinition.ToString() + ": " + v.Value.ToString();
+					return v.ID + ": " + v.Type.ToString() + ": " + v.Value.ToString();
 			}));
 		}
 	}

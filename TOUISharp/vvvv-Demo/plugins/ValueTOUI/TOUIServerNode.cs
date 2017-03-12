@@ -129,7 +129,7 @@ namespace VVVV.Nodes
 			var id = pin.ParentNode.GetNodePath(false) + "/" + pin.Name;
 			
 			Parameter parameter = new Parameter(id);
-			ValueDefinition valueDefinition = null;
+			TypeDefinition typeDefinition = null;
 			object value = null;
 			
 			//figure out the actual spreadcount 
@@ -162,18 +162,19 @@ namespace VVVV.Nodes
 					var isbool = (min == 0) && (max == 1);
 					if (isbool)
 					{
-						valueDefinition = new TOUIBoolean();
-						valueDefinition.Default = dflt;
+						var tbool = new TOUIBoolean();
+						tbool.Default = dflt >= 0.5;
+						typeDefinition = tbool;
 					}
 					else
 					{
-						var number = new TOUINumber<int>();
+						var number = new TOUINumber();
 						number.Default = dflt;
 						number.Min = min;
 						number.Max = max;
-						number.Stepsize = intStep;
+						number.Step = intStep;
 						number.Unit = subtype[6];
-						valueDefinition = number;
+						typeDefinition = number;
 					}
 				}
 				else if (float.TryParse(subtype[5], NumberStyles.Float, CultureInfo.InvariantCulture, out floatStep))
@@ -187,21 +188,21 @@ namespace VVVV.Nodes
 					float precision = 0;
 					float.TryParse(subtype[7], NumberStyles.Float, CultureInfo.InvariantCulture, out precision);
 					
-					var number = new TOUINumber<float>();
+					var number = new TOUINumber();
 					number.Default = dflt;
 					number.Min = min;
 					number.Max = max;
-					number.Stepsize = floatStep;
+					number.Step = floatStep;
 					number.Unit = subtype[6].Trim();
-					valueDefinition = number;
+					typeDefinition = number;
 				}
 				
 				var dimensions = int.Parse(subtype[1]);
-				if (valueDefinition is TOUIBoolean)
+				if (typeDefinition is TOUIBoolean)
 				{
 					value = pin[0] == "1";
 				}
-				else if (valueDefinition is TOUINumber<int>)
+				else if (typeDefinition is TOUINumber)
 				{
 					int[] vs = new int[sliceCount];
 					for (int i=0; i<sliceCount; i++)
@@ -212,7 +213,7 @@ namespace VVVV.Nodes
 					else
 						value = vs;
 				}
-				else if (valueDefinition is TOUINumber<float>)
+				else if (typeDefinition is TOUINumber)
 				{
 					var itemCount = sliceCount*dimensions;
 					float[] vs = new float[itemCount];
@@ -233,32 +234,24 @@ namespace VVVV.Nodes
 					//vectorize the valueDefinition
 					if (dimensions == 2)
 					{
-						var vectorXDefinition = (TOUINumber<float>) valueDefinition;
-						var vectorYDefinition = (TOUINumber<float>) valueDefinition;
-						valueDefinition = new TOUIVector2<TOUINumber<float>, TOUINumber<float>>(vectorXDefinition, vectorYDefinition);
+						typeDefinition = new TOUIVector2();
 					} 
-					else if (dimensions == 3)
-					{
-						var vectorXDefinition = (TOUINumber<float>) valueDefinition;
-						var vectorYDefinition = (TOUINumber<float>) valueDefinition;
-						var vectorZDefinition = (TOUINumber<float>) valueDefinition;
-						valueDefinition = new TOUIVector3<TOUINumber<float>, TOUINumber<float>, TOUINumber<float>>(vectorXDefinition, vectorYDefinition, vectorZDefinition);
-					}
-					else if (dimensions == 4)
-					{
-						var vectorXDefinition = (TOUINumber<float>) valueDefinition;
-						var vectorYDefinition = (TOUINumber<float>) valueDefinition;
-						var vectorZDefinition = (TOUINumber<float>) valueDefinition;
-						var vectorWDefinition = (TOUINumber<float>) valueDefinition;
-						valueDefinition = new TOUIVector4<TOUINumber<float>, TOUINumber<float>, TOUINumber<float>, TOUINumber<float>>(vectorXDefinition, vectorYDefinition, vectorZDefinition, vectorWDefinition);
-					}
+//					else if (dimensions == 3)
+//					{
+//						typeDefinition = new TOUIVector3();
+//					}
+//					else if (dimensions == 4)
+//					{
+//						typeDefinition = new TOUIVector4();
+//					}
 				}
 			}
 			else if (pin.Type == "String")
 			{
 				/// strings: guiType, default, fileMask, maxChars
-				valueDefinition = new TOUIString();
-				valueDefinition.Default = subtype[1];
+				var tString = new TOUIString();
+				tString.Default = subtype[1];
+				typeDefinition = tString;
 				value = pin[0];
 			}
 			else if (pin.Type == "Color")
@@ -268,7 +261,7 @@ namespace VVVV.Nodes
 				var rgba = new RGBAColor(float.Parse(comps[0]), float.Parse(comps[1]), float.Parse(comps[2]), float.Parse(comps[3]));
 				
 				bool hasAlpha = subtype[2].Trim() == "HasAlpha";
-				valueDefinition = new TOUIColor("RGB" + (hasAlpha ? "A" : ""));
+				typeDefinition = new TOUIColor("RGB" + (hasAlpha ? "A" : ""));
 				
 				value = rgba.Color;
 			}
@@ -283,25 +276,26 @@ namespace VVVV.Nodes
 					
 				var dfault = entries.IndexOf(subtype[2].Trim());
 				var val = entries.IndexOf(pin[0]); 
-				valueDefinition = new TOUIEnum(entries.ToArray());
-				valueDefinition.Default = dfault;
+				var tEnum = new TOUIEnum(entries.ToArray());
+				//tEnum.Default = dfault;
+				typeDefinition = tEnum;
 				value = entries.IndexOf(pin[0]);
 			}
 			
-			if (valueDefinition == null)
+			if (typeDefinition == null)
 			{
-				valueDefinition = new TOUIString();
-				valueDefinition.Label = "Unknown Value";
+				typeDefinition = new TOUIString();
+				parameter.Label = "Unknown Value";
 			}
 			else
-				valueDefinition.Label = pin.ParentNode.LabelPin.Spread.Trim('|');
+				parameter.Label = pin.ParentNode.LabelPin.Spread.Trim('|');
+        	
+			parameter.Type = typeDefinition;
+			parameter.Value = value;
 			
 			var tag = pin.ParentNode.FindPin("Tag");
 			if (tag != null)
-				valueDefinition.UserData = tag.Spread.Trim('|');
-        	
-			parameter.ValueDefinition = valueDefinition;
-			parameter.Value = value;
+				parameter.UserData = tag.Spread.Trim('|');
 			
 			//FLogger.Log(LogType.Debug, value.ToString());
 			
