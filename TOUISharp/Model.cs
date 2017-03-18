@@ -69,7 +69,7 @@ namespace TOUI
         public BoolBehavior Behavior { get; set; }
 
         public TOUIBoolean()
-		: base ("Boolean")
+		: base ("boolean")
 		{
 		}
 	}
@@ -94,7 +94,7 @@ namespace TOUI
         public float Default { get; set; }
 
         public TOUINumber()
-		: base ("Number")
+		: base ("number")
 		{
 		}
 	}
@@ -119,7 +119,7 @@ namespace TOUI
         public PointF Default { get; set; }
 
         public TOUIVector2()
-		: base ("Vector2")
+		: base ("vector2")
 		{
 		}
 	}
@@ -136,7 +136,7 @@ namespace TOUI
         public string Default { get; set; }
 
         public TOUIString()
-        : base("String")
+        : base("string")
         {
         }
     }
@@ -148,9 +148,10 @@ namespace TOUI
         [JsonProperty("default")]
         public Color Default { get; set; }
 
-        public TOUIColor(string subtype)
-        : base("Color")
+        public TOUIColor(bool hasAlpha)
+        : base("color")
         {
+        	Alpha = hasAlpha;
         }
     }
 
@@ -160,26 +161,38 @@ namespace TOUI
         public string[] Entries { get; set; }
 
         public TOUIEnum(string[] entries)
-        : base("Enum")
+        : base("enum")
         {
             Entries = entries;
         }
     }
 
- //   public class TOUIDictionary<K, V>: TypeDefinition
-	//where K: TypeDefinition
-	//where V: TypeDefinition
-	//{
- //       [JsonProperty("key")]
- //       public K KeyDefinition { get; set; }
- //       [JsonProperty("value")]
- //       public V ValueDefinition { get; set; }
-		
-	//	public TOUIDictionary(K keyDefinition, V valueDefinition)
-	//	: base ("Dictionary", null)
-	//	{
-	//		KeyDefinition = keyDefinition;
-	//		ValueDefinition = valueDefinition;
-	//	}
-	//}
+    public class TOUIArray : TypeDefinition
+    {
+        [JsonProperty("subtype")]
+        public TypeDefinition Subtype { get; set; }
+
+        public TOUIArray(TypeDefinition subtype)
+        : base("array")
+        {
+        	Subtype = subtype;
+        }
+    }
+
+    //   public class TOUIDictionary<K, V>: TypeDefinition
+    //where K: TypeDefinition
+    //where V: TypeDefinition
+    //{
+    //       [JsonProperty("key")]
+    //       public K KeyDefinition { get; set; }
+    //       [JsonProperty("value")]
+    //       public V ValueDefinition { get; set; }
+
+    //	public TOUIDictionary(K keyDefinition, V valueDefinition)
+    //	: base ("Dictionary", null)
+    //	{
+    //		KeyDefinition = keyDefinition;
+    //		ValueDefinition = valueDefinition;
+    //	}
+    //}
 }

@@ -2,6 +2,8 @@ using System;
 using System.Text;
 using System.Windows.Forms;
 using Newtonsoft.Json;
+using System.Drawing;
+using System.Globalization;
 
 namespace TOUI
 {
@@ -44,9 +46,10 @@ namespace TOUI
 
             //first decode as dynamic to check for the datatype
             dynamic p = JsonConvert.DeserializeObject(json);
-            
+            //MessageBox.Show(json);
         	var packet = new Packet();
             Command c;
+        	
             if (Command.TryParse(UppercaseFirst(p.command.ToString()), out c))
         	{
 	            packet.Command = c;
@@ -63,64 +66,66 @@ namespace TOUI
 	        		packet.Data.Value = p.data.value;
 	        		return packet;
 	        	}
-	
-	            //decode to specific datatype
-	            var vdn = p.data.type.name.ToString();
-	            var vd = p.data.type.ToString();
-	            var v = p.data.value.ToString();
-	
-	            DecodeValueDefition(packet, vdn, vd, v);
+
+                //Command.Add
+
+                //decode to specific datatype
+                var param = p.data;
+	            var name = param.type.name.ToString();
+	            var typedefinition = param.type.ToString();
+	            var value = param.value.ToString();
+
+                packet.Data.Type = DecodeTypeDefinition(name, typedefinition);
+        		MessageBox.Show(packet.Data.Type.ToString() + ": " + value.ToString());
+                packet.Data.Value = DecodeValue(packet.Data.Type, value);
+        		//MessageBox.Show(packet.Data.Value.ToString());
         	}
             return packet;
         }
 
-        private void DecodeValueDefition(Packet packet, string vdn, string vd, string v)
+        private TypeDefinition DecodeTypeDefinition(string name, string typedefinition)
         {
-            if (vdn.StartsWith("Vector2"))
-            {
-                //expect something in the form: Vector2<Number<float32>,Number<float32>>
-                //assume both components of the vector have the same type
-                //so only look for the first one
-                var dimensions = 0;
+            if (name == "boolean")
+                return JsonConvert.DeserializeObject<TOUIBoolean>(typedefinition);
+            else if (name == "number")
+                return JsonConvert.DeserializeObject<TOUINumber>(typedefinition);
+            else if (name == "vector2")
+                return JsonConvert.DeserializeObject<TOUIVector2>(typedefinition);
+            else if (name == "string")
+                return JsonConvert.DeserializeObject<TOUIString>(typedefinition);
+            else if (name == "color")
+                return JsonConvert.DeserializeObject<TOUIColor>(typedefinition);
+            else if (name == "enum")
+                return JsonConvert.DeserializeObject<TOUIEnum>(typedefinition);
+            else if (name == "array")
+                return JsonConvert.DeserializeObject<TOUIArray>(typedefinition);
+            else
+                return null;
+        }
 
-                //for assume float2
-                //TODO: there must be a better way to deserialize this
-                packet.Data.Type = JsonConvert.DeserializeObject<TOUIVector2>(vd);
-                packet.Data.Value = v.ToString();
-            }
-            else if (vdn.StartsWith("Boolean"))
-            {
-                packet.Data.Type = JsonConvert.DeserializeObject<TOUIBoolean>(vd);
-                packet.Data.Value = bool.Parse(v);
-            }
-            else if (vdn.StartsWith("Number"))
-            {
-            	packet.Data.Type = JsonConvert.DeserializeObject<TOUINumber>(vd);
-                packet.Data.Value = float.Parse(v);
-            }
-            else if (vdn.StartsWith("String"))
-            {
-                packet.Data.Type = JsonConvert.DeserializeObject<TOUIString>(vd);
-                packet.Data.Value = v;
-            }
-            else if (vdn.StartsWith("Color"))
-            {
-                packet.Data.Type = JsonConvert.DeserializeObject<TOUIColor>(vd);
-                packet.Data.Value = JsonConvert.DeserializeObject<System.Drawing.Color>(v + ", 0");
-            }
-            else if (vdn.StartsWith("Enum"))
-            {
-                packet.Data.Type = JsonConvert.DeserializeObject<TOUIEnum>(vd);
-                packet.Data.Value = int.Parse(v);
-            }
-            else if (vdn.StartsWith("Dictionary"))
-            {
-                //MessageBox.Show(v);
-            }
-            //			var serializer = CsPickler.CreateJsonSerializer();
-            //			return serializer.UnPickleOfString<Packet>(json);
-
-            //return packet;
+        private object DecodeValue(TypeDefinition typedefinition, string value)
+        {
+            if (typedefinition is TOUIBoolean)
+                return value;
+            else if (typedefinition is TOUINumber)
+        		return value;
+            else if (typedefinition is TOUIVector2)
+                return value;
+            else if (typedefinition is TOUIString)
+                return value;
+            else if (typedefinition is TOUIColor)
+        	{
+        		return value;
+//        		var comps = value.Split(',');
+//        		return Color.FromArgb(0, int.Parse(comps[0]), int.Parse(comps[1]), int.Parse(comps[2]));
+//        		return JsonConvert.DeserializeObject<System.Drawing.Color>(value + ", 0");
+        	}                
+            else if (typedefinition is TOUIEnum)
+                return int.Parse(value);
+            else if (typedefinition is TOUIArray)
+                return JsonConvert.DeserializeObject(value);
+            else 
+                return null;
         }
     }
 }
