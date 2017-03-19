@@ -49,7 +49,6 @@ namespace TOUI
 		{
 			var packet = new Packet();
 			packet.Command = command;
-//			packet.Parameter = null; //new Parameter("");
 			
 			return Serializer.Serialize(packet);
 		}

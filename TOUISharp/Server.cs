@@ -71,7 +71,6 @@ namespace TOUI
 			//dispatch to all clients via transporter
 			var packet = Pack(Command.Update, value);
 			
-			
 			Transporter.Send(packet);
 			Logger.Log(LogType.Debug, "Server sent: Update");
 			
