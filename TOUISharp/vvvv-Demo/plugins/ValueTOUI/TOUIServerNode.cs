@@ -54,7 +54,6 @@ namespace VVVV.Nodes
 			//FTOUIServer.Transporter = new TOUI.WebsocketServerTransporter("127.0.0.1", 8181);
 			//provide an ISerializer
 			FTOUIServer.Serializer = new TOUI.JsonSerializer();
-			
 			//subscribe to the value-updated event
 			FTOUIServer.ParameterUpdated = ParameterUpdated;
 		}
@@ -107,10 +106,10 @@ namespace VVVV.Nodes
 			pin.Changed += PinChanged;
 			//TODO: subscribe to subtype-pins here as well
 			
-			var value = PinToParameter(pin);
-			FCachedPins.Add(value.ID, pin);
+			var param = PinToParameter(pin);
+			FCachedPins.Add(param.ID, pin);
 			
-			FTOUIServer.AddParameter(value);
+			FTOUIServer.AddParameter(param);
 		}
 		
 		private void NodeRemovedCB(INode2 node)
