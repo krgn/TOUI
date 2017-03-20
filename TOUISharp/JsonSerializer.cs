@@ -14,11 +14,7 @@ namespace TOUI
             var json = "";
             try
             {
-                //			var serializer = CsPickler.CreateJsonSerializer();
-                //			json = serializer.PickleToString(packet);
-                var serializerSettings = new JsonSerializerSettings {
-                    DefaultValueHandling = DefaultValueHandling.Ignore
-                };
+                var serializerSettings = new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Ignore };
                 json = JsonConvert.SerializeObject(packet/*, serializerSettings*/);
             }
             catch (Exception e)
@@ -46,45 +42,57 @@ namespace TOUI
 
             //first decode as dynamic to check for the datatype
             dynamic p = JsonConvert.DeserializeObject(json);
-            //MessageBox.Show(json);
+            //MessageBox.Show(p.command.ToString());
         	var packet = new Packet();
             Command c;
         	
-            if (Command.TryParse(UppercaseFirst(p.command.ToString()), out c))
+            if (Command.TryParse(p.command.ToString(), true, out c))
         	{
 	            packet.Command = c;
-	
-	            if (packet.Command == Command.Init)
-	                return packet;
-	
-	            packet.Data = new Parameter(p.data.id.ToString());
-	
-	            if (packet.Command == Command.Remove)
-	                return packet;
-	        	if (packet.Command == Command.Update)
-	        	{
-	        		packet.Data.Value = p.data.value;
-	        		return packet;
-	        	}
-
-                //Command.Add
-
-                //decode to specific datatype
-                var param = p.data;
-	            var name = param.type.name.ToString();
-	            var typedefinition = param.type.ToString();
-	            var value = param.value.ToString();
-
-                packet.Data.Type = DecodeTypeDefinition(name, typedefinition);
-        		MessageBox.Show(packet.Data.Type.ToString() + ": " + value.ToString());
-                packet.Data.Value = DecodeValue(packet.Data.Type, value);
-        		//MessageBox.Show(packet.Data.Value.ToString());
+        		
+        		switch(packet.Command)
+        		{
+        			case Command.Init: break;
+        			case Command.Remove:
+        			{
+        				packet.Data = new Parameter(p.data.id.ToString());
+        				break;
+        			}
+        			case Command.Update: 
+        			{
+        				packet.Data = new Parameter(p.data.id.ToString());
+        				//TODO: does an update also always come with a typdef
+        				//so we can properly deserialize here?
+        				packet.Data.Value = p.data.value;
+	        			break;
+        			}
+        			case Command.Add:
+        			{
+        				packet.Data = new Parameter(p.data.id.ToString());
+        				
+        				//decode to specific datatype
+		                var param = p.data;
+			            var name = param.type.name.ToString();
+			            var typedefinition = param.type.ToString();
+			            var value = param.value.ToString();
+		
+        				//MessageBox.Show(typedefinition);
+        				
+		                packet.Data.Type = DecodeTypeDefinition(name, param.type);
+        				packet.Data.Value = DecodeValue(packet.Data.Type, value);
+        				
+		        		//MessageBox.Show(packet.Data.Value.ToString());
+        				break;
+        			}
+        		}
         	}
             return packet;
         }
 
-        private TypeDefinition DecodeTypeDefinition(string name, string typedefinition)
+        private TypeDefinition DecodeTypeDefinition(string name, dynamic typedef)
         {
+        	var typedefinition = typedef.ToString();
+        	
             if (name == "boolean")
                 return JsonConvert.DeserializeObject<TOUIBoolean>(typedefinition);
             else if (name == "number")
@@ -98,7 +106,10 @@ namespace TOUI
             else if (name == "enum")
                 return JsonConvert.DeserializeObject<TOUIEnum>(typedefinition);
             else if (name == "array")
-                return JsonConvert.DeserializeObject<TOUIArray>(typedefinition);
+        	{
+        		var type = DecodeTypeDefinition(typedef.subtype.name.ToString(), typedef.subtype.ToString());
+        		return new TOUIArray(type);
+        	}
             else
                 return null;
         }
@@ -106,7 +117,7 @@ namespace TOUI
         private object DecodeValue(TypeDefinition typedefinition, string value)
         {
             if (typedefinition is TOUIBoolean)
-                return value;
+                return bool.Parse(value);
             else if (typedefinition is TOUINumber)
         		return value;
             else if (typedefinition is TOUIVector2)

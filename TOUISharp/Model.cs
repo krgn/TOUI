@@ -18,28 +18,25 @@ namespace TOUI
         public string ID { get; set; }
         [JsonProperty("type")]
         public TypeDefinition Type { get; set; }
+        [JsonProperty("label")]
+        public string Label { get; set; }
         [JsonProperty("value")]
         public object Value { get; set; }
+
+        [JsonProperty("description")]
+        public string Description { get; set; }
         [JsonProperty("group")]
         public string Group { get; set; }
         [JsonProperty("order")]
         public int Order { get; set; }
-        [JsonProperty("description")]
-        public string Description { get; set; }
-        [JsonProperty("label")]
-        public string Label { get; set; }
         [JsonProperty("widget")]
         public string Widget { get; set; }
-        [JsonProperty("default")]
-        public object Default { get; set; }
         [JsonProperty("userdata")]
         public object UserData { get; set; }
 
         public Parameter (string id)
 		{
 			ID = id;
-//			ValueDefinition = null;
-//			Value = null;
 		}
 	}
 	
@@ -178,21 +175,4 @@ namespace TOUI
         	Subtype = subtype;
         }
     }
-
-    //   public class TOUIDictionary<K, V>: TypeDefinition
-    //where K: TypeDefinition
-    //where V: TypeDefinition
-    //{
-    //       [JsonProperty("key")]
-    //       public K KeyDefinition { get; set; }
-    //       [JsonProperty("value")]
-    //       public V ValueDefinition { get; set; }
-
-    //	public TOUIDictionary(K keyDefinition, V valueDefinition)
-    //	: base ("Dictionary", null)
-    //	{
-    //		KeyDefinition = keyDefinition;
-    //		ValueDefinition = valueDefinition;
-    //	}
-    //}
 }
