@@ -128,7 +128,7 @@ namespace VVVV.Nodes
 		{
 			var id = pin.ParentNode.GetNodePath(false) + "/" + pin.Name;
 			
-			Parameter parameter = new Parameter(id);
+			var parameter = new Parameter(id);
 			TypeDefinition typeDefinition = null;
 			
 			//figure out the actual spreadcount 
@@ -164,20 +164,20 @@ namespace VVVV.Nodes
 						if (isbool)
 						{
 							var tbool = new TOUIBoolean();
-							tbool.Default = dflt >= 0.5;
+							tbool.Default = dflt == 1;
 							if (subtype[0] == "Bang")
 								tbool.Behavior = BoolBehavior.Bang;
 							else if (subtype[0] == "Toggle")
-								tbool.Behavior =BoolBehavior.Toggle;
+								tbool.Behavior = BoolBehavior.Toggle;
 							else if (subtype[0] == "Press")
 								tbool.Behavior = BoolBehavior.Press;
 							typeDefinition = tbool;
 							
 							for (int i=0; i<sliceCount; i++)
 							{
-								bool v;
-								bool.TryParse(pin[i], out v);
-								vs[i] = v;
+								int v;
+								int.TryParse(pin[i], out v);
+								vs[i] = v == 1;
 							}
 						}
 						else
@@ -320,6 +320,10 @@ namespace VVVV.Nodes
 			if (tag != null)
 				parameter.UserData = tag.Spread.Trim('|');
 			
+            //description
+            //group -> patch
+            //order -> xy in patch
+
 			//FLogger.Log(LogType.Debug, value.ToString());
 			
 			return parameter;
