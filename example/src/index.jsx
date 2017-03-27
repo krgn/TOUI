@@ -55,8 +55,9 @@ window.onload = () => {
     </Provider>,
     document.getElementById('main'));
 
-  let ws = new WebSocket(Socket.defaultHost)
+  const ws = new WebSocket(Socket.defaultHost)
 
+  ws.binaryType = "blob";
   ws.onopen = Socket.onOpen(ws)
   ws.onmessage = Socket.onMsg(Store)
   ws.onclose = Socket.onClose(Store)
@@ -72,8 +73,9 @@ window.onload = () => {
           value: value.payload.value
         }
       })
+      var blob = new Blob([JSON.stringify(data, null, 2)], {type : 'application/json'});
       console.log('sending', data)
-      ws.send(data)
+      ws.send(blob)
     }
   })
 
