@@ -8,3 +8,4 @@ obj/
 bin/
 SaveFile/SaveFile.xml
 SaveFile/SaveFile.xml
+node_modules

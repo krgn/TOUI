@@ -1,0 +1,41 @@
+{
+  "name": "toui-example-application",
+  "version": "1.0.0",
+  "description": "An example application using the TOUI protocol.",
+  "main": "main.js",
+  "scripts": {
+    "build": "node node_modules/webpack/bin/webpack.js",
+    "dev-server": "node_modules/.bin/webpack-dev-server --content-base build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vvvv/TOUI.git"
+  },
+  "keywords": [
+    "toui",
+    "vvvv"
+  ],
+  "author": "Karsten Gebbert",
+  "license": "LGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/vvvv/TOUI/issues"
+  },
+  "homepage": "https://github.com/vvvv/TOUI#readme",
+  "devDependencies": {
+    "babel-core": "^6.21.0",
+    "babel-loader": "^6.2.10",
+    "babel-preset-es2015": "^6.18.0",
+    "babel-preset-react": "^6.16.0",
+    "react": "^15.4.1",
+    "react-dom": "^15.4.1",
+    "react-redux": "^5.0.1",
+    "redux": "^3.6.0",
+    "serve-static": "^1.11.1",
+    "webpack": "^1.14.0",
+    "webpack-dev-server": "^1.16.2",
+    "webpack-notifier": "^1.5.0"
+  },
+  "dependencies": {
+    "muicss": "^0.9.7"
+  }
+}
