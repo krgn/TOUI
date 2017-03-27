@@ -7,37 +7,55 @@ import Dropdown from 'muicss/lib/react/dropdown';
 import DropdownItem from 'muicss/lib/react/dropdown-item';
 
 export const ValueTypes = {
-  Boolean: 'Boolean',
-  String: 'String',
-  Number: 'Number<float32>',
-  Color: 'Color',
-  Enum: 'Enum'
+  Boolean: 'boolean',
+  String: 'string',
+  Number: 'number',
+  Color: 'color',
+  Enum: 'enum'
 }
 
 export const TOUIValue = PropTypes.shape({
   id: PropTypes.string.isRequired,
-  name: PropTypes.oneOf(Object.values(ValueTypes)).isRequired,
   value: PropTypes.any.isRequired,
   default: PropTypes.any,
   label: PropTypes.string,
   description: PropTypes.string,
+  group: PropTypes.string,
   userdata: PropTypes.any,
-  subtype: PropTypes.string,
-  min: PropTypes.number,   
-  max: PropTypes.number,  
-  stepsize: PropTypes.number,
-  unit: PropTypes.string,
-  cyclic: PropTypes.bool,
-  pow2: PropTypes.bool,  
+  type: PropTypes.shape({
+    pow2: PropTypes.bool,  
+    unit: PropTypes.string,
+    cyclic: PropTypes.bool,
+    min: PropTypes.number,   
+    max: PropTypes.number,  
+    precision: PropTypes.number,  
+    step: PropTypes.number,
+    alpha: PropTypes.bool,
+    behavior: PropTypes.number,
+    default: PropTypes.any,
+    name: PropTypes.string
+  }),
   filemask: PropTypes.string,
   maxChars: PropTypes.string,
   multiline: PropTypes.bool,
   entries: PropTypes.arrayOf(PropTypes.string)
 })
 
+const str2color = str => {
+  let parse = part => {
+    let hex = parseInt(part,10).toString(16)
+    if( hex.length === 1 ) {
+      return "0" + hex
+    } else {
+      return hex
+    }
+  }
+  return "#" + str.split(',').map(parse).join("")
+}
+
 const BoolValue = ({ value, onChange }) => (
   <div>
-    <h1>{value.Label}</h1>
+    <h1>{value.label}</h1>
     <div>
       Type:
       <em>Bool</em> 
@@ -45,6 +63,10 @@ const BoolValue = ({ value, onChange }) => (
     <div>
       Description:
       <em>{value.description}</em>
+    </div>
+    <div>
+      User Data:
+      <em>{value.userdata}</em>
     </div>
     <div>
       Value:
@@ -113,17 +135,21 @@ const ColorValue = ({ value, onChange }) => (
     <h1>{value.label}</h1>
     <div>
       Type:
-      <em>Color</em> 
+      <em> Color</em> 
     </div>
     <div>
       Description:
-      <em>{value.description}</em>
+      <em> {value.description}</em>
+    </div>
+    <div>
+      User Data: 
+      <em> {value.userdata}</em>
     </div>
     <div>
       Value:
       <div className="mui-textfield">
         <input
-            value={value.value}
+            value={str2color(value.value)}
             type="color"
             onChange={el => onChange(value.id, el.target.value)} />
       </div>
@@ -154,7 +180,7 @@ const EnumValue = ({ value, onChange }) => (
 )
 
 function renderValue(props) {
-  switch(props.value.name) {
+  switch(props.value.type.name) {
     case ValueTypes.Boolean:
       return BoolValue(props)
     case ValueTypes.String:
@@ -165,6 +191,8 @@ function renderValue(props) {
       return ColorValue(props)
     case ValueTypes.Enum:
       return EnumValue(props)
+    default:
+      console.log("unknown type:", props.value.type.name)
   }
 }
 

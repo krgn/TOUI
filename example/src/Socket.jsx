@@ -10,7 +10,6 @@ export const Command = {
 }
 
 let blob2str = (blob, cb) => {
-  console.log(blob)
   var reader = new window.FileReader();
   reader.readAsText(blob); 
   reader.onload = function() {
@@ -35,25 +34,13 @@ export const onMsg = (Store) => (
         case Command.Init:
           break
         case Command.Add:
-          let add = Object.assign({}, decoded.parameter.valuedefinition, {
-            id: decoded.parameter.id,
-            value: decoded.parameter.value
-          })
-          Store.dispatch({ type: Actions.Add, payload: add })
+          Store.dispatch({ type: Actions.Add, payload: decoded.data })
           break
         case Command.Update:
-          let update = Object.assign({}, decoded.parameter.valuedefinition, {
-            id: decoded.parameter.id,
-            value: decoded.parameter.value
-          })
-          Store.dispatch({ type: Actions.Update, payload: update })
+          Store.dispatch({ type: Actions.Update, payload: decoded.data })
           break
         case Command.Remove:
-          let remove = Object.assign({}, decoded.parameter.valuedefinition, {
-            id: decoded.parameter.id,
-            value: decoded.parameter.value
-          })
-          Store.dispatch({ type: Actions.Remove, payload: remove })
+          Store.dispatch({ type: Actions.Remove, payload: decoded.data })
           break
         default:
           console.log('unknown command:', decoded.command)
