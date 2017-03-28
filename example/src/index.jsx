@@ -68,7 +68,7 @@ window.onload = () => {
     if (value && value.type === Actions.ClientUpdate) {
       let data = JSON.stringify({
         command: Socket.Command.Update,
-        parameter: {
+        data: {
           id: value.payload.id,
           value: value.payload.value
         }

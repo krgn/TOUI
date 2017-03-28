@@ -11,8 +11,23 @@ export const ValueTypes = {
   String: 'string',
   Number: 'number',
   Color: 'color',
-  Enum: 'enum'
+  Enum: 'enum',
+  Array: 'array'
 }
+
+export const TOUIValueType = PropTypes.shape({
+  pow2: PropTypes.bool,  
+  unit: PropTypes.string,
+  cyclic: PropTypes.bool,
+  min: PropTypes.number,   
+  max: PropTypes.number,  
+  precision: PropTypes.number,  
+  step: PropTypes.number,
+  alpha: PropTypes.bool,
+  behavior: PropTypes.number,
+  default: PropTypes.any,
+  name: PropTypes.string.isRequired
+})
 
 export const TOUIValue = PropTypes.shape({
   id: PropTypes.string.isRequired,
@@ -22,19 +37,13 @@ export const TOUIValue = PropTypes.shape({
   description: PropTypes.string,
   group: PropTypes.string,
   userdata: PropTypes.any,
-  type: PropTypes.shape({
-    pow2: PropTypes.bool,  
-    unit: PropTypes.string,
-    cyclic: PropTypes.bool,
-    min: PropTypes.number,   
-    max: PropTypes.number,  
-    precision: PropTypes.number,  
-    step: PropTypes.number,
-    alpha: PropTypes.bool,
-    behavior: PropTypes.number,
-    default: PropTypes.any,
-    name: PropTypes.string
-  }),
+  type: PropTypes.oneOfType([
+    TOUIValueType,
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      subtype: TOUIValueType
+    })
+  ]),
   filemask: PropTypes.string,
   maxChars: PropTypes.string,
   multiline: PropTypes.bool,
@@ -58,7 +67,7 @@ const BoolValue = ({ value, onChange }) => (
     <h1>{value.label}</h1>
     <div>
       Type:
-      <em>Bool</em> 
+      <em> Bool</em> 
     </div>
     <div>
       Description:
@@ -87,7 +96,7 @@ const StringValue = ({ value, onChange }) => (
     <h1>{value.label}</h1>
     <div>
       Type:
-      <em>String</em> 
+      <em> String</em> 
     </div>
     <div>
       Description:
@@ -109,7 +118,7 @@ const NumberValue = ({ value, onChange }) => (
     <h1>{value.label}</h1>
     <div>
       Type:
-      <em>Number</em> 
+      <em >Number</em> 
     </div>
     <div>
       Description:
@@ -162,11 +171,35 @@ const EnumValue = ({ value, onChange }) => (
     <h1>{value.label}</h1>
     <div>
       Type:
-      <em>Enum</em> 
+      <em> Enum</em> 
     </div>
     <div>
       Description:
-      <em>{value.description}</em>
+      <em> {value.description}</em>
+    </div>
+    <div>
+      <div>Value:</div>
+      <select value={value.type.entries[value.value]} onChange={el => onChange(value.id, el.target.value)}>
+        {
+          value.type.entries.map(entry => {
+            return <option key={entry} value={entry}>{entry}</option>
+          })
+        }
+      </select>
+    </div>
+  </div>
+)
+
+const ArrayValue = ({ value, onChange }) => (
+  <div>
+    <h1>{value.label}</h1>
+    <div>
+      Type:
+      <em> {"Array<" + value.type.subtype.name + ">"}</em> 
+    </div>
+    <div>
+      Description:
+      <em> {value.description}</em>
     </div>
     <div>
       <div>Value:</div>
@@ -177,7 +210,7 @@ const EnumValue = ({ value, onChange }) => (
       </select>
     </div>
   </div>
-)
+) 
 
 function renderValue(props) {
   switch(props.value.type.name) {
@@ -190,7 +223,10 @@ function renderValue(props) {
     case ValueTypes.Color:
       return ColorValue(props)
     case ValueTypes.Enum:
+      console.log("enum:", props)
       return EnumValue(props)
+    case ValueTypes.Array:
+      return ArrayValue(props)
     default:
       console.log("unknown type:", props.value.type.name)
   }
