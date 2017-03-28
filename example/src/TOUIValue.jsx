@@ -62,16 +62,22 @@ const str2color = str => {
   return "#" + str.split(',').map(parse).join("")
 }
 
-const BoolValue = ({ key, value, onChange }) => (
+const BoolValue = ({ key, value, orig, onChange }) => (
   <Checkbox
       key={key}
       label={value.label}
       name={value.id}
       value={value.value}
       checked={value.value ? "checked" : null}
-      onChange={(el) =>  
-      onChange(value.id,el.target.checked) 
-      } />
+      onChange={(el) => {
+        if(orig == null) {
+          onChange(value.id, el.target.checked)
+        } else {
+          let values = Object.assign([],orig.value)
+          values[key] = el.target.checked
+          onChange(value.id, values)
+        } 
+      }} />
 )
 
 const BoolBox = ({ value, onChange }) => (
@@ -96,13 +102,21 @@ const BoolBox = ({ value, onChange }) => (
   </div>
 )
 
-const StringValue = ({ key, value, onChange }) => (
+const StringValue = ({ key, value, orig, onChange }) => (
   <Input
       key={key}
       hint={value.description}
       value={value.value}
       type="text"
-      onChange={el => onChange(value.id, el.target.value)} />
+      onChange={el => {
+        if(orig == null) {
+          onChange(value.id, el.target.value)
+        } else {
+          let values = Object.assign([],orig.value)
+          values[key] = el.target.value
+          onChange(value.id, values)
+        } 
+      }} />
 )
 
 const StringBox = ({ value, onChange }) => (
@@ -123,14 +137,20 @@ const StringBox = ({ value, onChange }) => (
   </div>
 )
 
-const NumberValue = ({ key, value, onChange }) => (
+const NumberValue = ({ key, value, orig, onChange }) => (
   <input
       key={key}
       value={value.value}
       type="number"
       onChange={el => {
-          let val = parseFloat(el.target.value,10)
-          onChange(value.id, val ? val : 0)
+          let parsed = parseFloat(el.target.value,10)
+          if(orig == null) {
+            onChange(value.id, parsed ? parsed : 0)
+          } else {
+            let values = Object.assign([],orig.value)
+            values[key] = parsed ? parsed : 0
+            onChange(value.id, values)
+          }
       }} />
 )
 
@@ -154,12 +174,20 @@ const NumberBox = ({ value, onChange }) => (
   </div>
 )
 
-const ColorValue = ({ key, value, onChange }) => (
+const ColorValue = ({ key, value, orig, onChange }) => (
   <input
       key={key}
       value={str2color(value.value)}
       type="color"
-      onChange={el => onChange(value.id, el.target.value)} />
+      onChange={el => {
+        if(orig == null) {
+          onChange(value.id, el.target.value)
+        } else {
+          let values = Object.assign([],orig.value)
+          values[key] = el.target.value
+          onChange(value.id, values)
+        } 
+      }} />
 )
 
 const ColorBox = ({ value, onChange }) => (
@@ -186,11 +214,19 @@ const ColorBox = ({ value, onChange }) => (
   </div>
 )
 
-const EnumValue = ({ key, value, onChange }) => (
+const EnumValue = ({ key, value, orig, onChange }) => (
   <select
       key={key}
       value={value.type.entries[value.value]}
-      onChange={el => onChange(value.id, value.type.entries.indexOf(el.target.value))}>
+      onChange={el => {
+        if(orig == null) {
+          onChange(value.id, value.type.entries.indexOf(el.target.value))
+        } else {
+          let values = Object.assign([],orig.value)
+          values[key] = value.type.entries.indexOf(el.target.value)
+          onChange(value.id, values)
+        }
+      }}>
     {
       value.type.entries.map(entry => {
         return <option key={entry} value={entry}>{entry}</option>
@@ -241,15 +277,15 @@ const ArrayBox = ({ value, onChange }) => (
           })
           switch(value.type.subtype.name) {
             case ValueTypes.Boolean:
-              return BoolValue({ key: idx, value: merged, onChange: onChange })
+              return BoolValue({ key: idx, value: merged, orig: value, onChange: onChange })
             case ValueTypes.String:
-              return StringValue({ key: idx, value: merged, onChange: onChange })
+              return StringValue({ key: idx, value: merged, orig: value, onChange: onChange })
             case ValueTypes.Number:
-              return NumberValue({ key: idx, value: merged, onChange: onChange })
+              return NumberValue({ key: idx, value: merged, orig: value, onChange: onChange })
             case ValueTypes.Color:
-              return ColorValue({ key: idx, value: merged, onChange: onChange })
+              return ColorValue({ key: idx, value: merged, orig: value, onChange: onChange })
             case ValueTypes.Enum:
-              return EnumValue({ key: idx, value: merged, onChange: onChange })
+              return EnumValue({ key: idx, value: merged, orig: value, onChange: onChange })
           }
         })
       }
