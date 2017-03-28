@@ -62,7 +62,19 @@ const str2color = str => {
   return "#" + str.split(',').map(parse).join("")
 }
 
-const BoolValue = ({ value, onChange }) => (
+const BoolValue = ({ key, value, onChange }) => (
+  <Checkbox
+      key={key}
+      label={value.label}
+      name={value.id}
+      value={value.value}
+      checked={value.value ? "checked" : null}
+      onChange={(el) =>  
+      onChange(value.id,el.target.checked) 
+      } />
+)
+
+const BoolBox = ({ value, onChange }) => (
   <div>
     <h1>{value.label}</h1>
     <div>
@@ -79,19 +91,21 @@ const BoolValue = ({ value, onChange }) => (
     </div>
     <div>
       Value:
-      <Checkbox
-          label={value.label}
-          name={value.id}
-          value={value.value}
-          checked={value.value ? "checked" : null}
-          onChange={(el) =>  
-            onChange(value.id,el.target.checked) 
-          } />
+      <BoolValue key={0} value={value} onChange={onChange} />
     </div>
   </div>
 )
 
-const StringValue = ({ value, onChange }) => (
+const StringValue = ({ key, value, onChange }) => (
+  <Input
+      key={key}
+      hint={value.description}
+      value={value.value}
+      type="text"
+      onChange={el => onChange(value.id, el.target.value)} />
+)
+
+const StringBox = ({ value, onChange }) => (
   <div>
     <h1>{value.label}</h1>
     <div>
@@ -104,16 +118,23 @@ const StringValue = ({ value, onChange }) => (
     </div>
     <div>
       Value:
-      <Input
-          hint={value.description}
-          value={value.value}
-          type="text"
-          onChange={el => onChange(value.id, el.target.value)} />
+      <StringValue key={0} value={value} onChange={onChange} />
     </div>
   </div>
 )
 
-const NumberValue = ({ value, onChange }) => (
+const NumberValue = ({ key, value, onChange }) => (
+  <input
+      key={key}
+      value={value.value}
+      type="number"
+      onChange={el => {
+          let val = parseFloat(el.target.value,10)
+          onChange(value.id, val ? val : 0)
+      }} />
+)
+
+const NumberBox = ({ value, onChange }) => (
   <div>
     <h1>{value.label}</h1>
     <div>
@@ -127,19 +148,21 @@ const NumberValue = ({ value, onChange }) => (
     <div>
       Value:
       <div className="mui-textfield">
-        <input
-            value={value.value}
-            type="number"
-            onChange={el => {
-              let val = parseFloat(el.target.value,10)
-              onChange(value.id, val ? val : 0)
-            }} />
+        <NumberValue key={0} value={value} onChange={onChange} />
       </div>
     </div>
   </div>
 )
 
-const ColorValue = ({ value, onChange }) => (
+const ColorValue = ({ key, value, onChange }) => (
+  <input
+      key={key}
+      value={str2color(value.value)}
+      type="color"
+      onChange={el => onChange(value.id, el.target.value)} />
+)
+
+const ColorBox = ({ value, onChange }) => (
   <div>
     <h1>{value.label}</h1>
     <div>
@@ -157,16 +180,26 @@ const ColorValue = ({ value, onChange }) => (
     <div>
       Value:
       <div className="mui-textfield">
-        <input
-            value={str2color(value.value)}
-            type="color"
-            onChange={el => onChange(value.id, el.target.value)} />
+        <ColorValue key={0} value={value} onChange={onChange} />
       </div>
     </div>
   </div>
 )
 
-const EnumValue = ({ value, onChange }) => (
+const EnumValue = ({ key, value, onChange }) => (
+  <select
+      key={key}
+      value={value.type.entries[value.value]}
+      onChange={el => onChange(value.id, value.type.entries.indexOf(el.target.value))}>
+    {
+      value.type.entries.map(entry => {
+        return <option key={entry} value={entry}>{entry}</option>
+      })
+    }
+  </select>
+)
+
+const EnumBox = ({ value, onChange }) => (
   <div>
     <h1>{value.label}</h1>
     <div>
@@ -179,18 +212,15 @@ const EnumValue = ({ value, onChange }) => (
     </div>
     <div>
       <div>Value:</div>
-      <select value={value.type.entries[value.value]} onChange={el => onChange(value.id, el.target.value)}>
-        {
-          value.type.entries.map(entry => {
-            return <option key={entry} value={entry}>{entry}</option>
-          })
-        }
-      </select>
+      <EnumValue
+        key={0}
+        value={value}
+        onChange={onChange}/>
     </div>
   </div>
 )
 
-const ArrayValue = ({ value, onChange }) => (
+const ArrayBox = ({ value, onChange }) => (
   <div>
     <h1>{value.label}</h1>
     <div>
@@ -203,11 +233,26 @@ const ArrayValue = ({ value, onChange }) => (
     </div>
     <div>
       <div>Value:</div>
-      <select onChange={el => onChange(value.id, el.target.value)}>
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-      </select>
+      {
+        value.value.map((val, idx) => {
+          let merged = Object.assign({}, value, {
+            type: value.type.subtype,
+            value: val
+          })
+          switch(value.type.subtype.name) {
+            case ValueTypes.Boolean:
+              return BoolValue({ key: idx, value: merged, onChange: onChange })
+            case ValueTypes.String:
+              return StringValue({ key: idx, value: merged, onChange: onChange })
+            case ValueTypes.Number:
+              return NumberValue({ key: idx, value: merged, onChange: onChange })
+            case ValueTypes.Color:
+              return ColorValue({ key: idx, value: merged, onChange: onChange })
+            case ValueTypes.Enum:
+              return EnumValue({ key: idx, value: merged, onChange: onChange })
+          }
+        })
+      }
     </div>
   </div>
 ) 
@@ -215,18 +260,18 @@ const ArrayValue = ({ value, onChange }) => (
 function renderValue(props) {
   switch(props.value.type.name) {
     case ValueTypes.Boolean:
-      return BoolValue(props)
+      return BoolBox(props)
     case ValueTypes.String:
-      return StringValue(props)
+      return StringBox(props)
     case ValueTypes.Number:
-      return NumberValue(props)
+      return NumberBox(props)
     case ValueTypes.Color:
-      return ColorValue(props)
+      return ColorBox(props)
     case ValueTypes.Enum:
-      console.log("enum:", props)
-      return EnumValue(props)
+      return EnumBox(props)
     case ValueTypes.Array:
-      return ArrayValue(props)
+      console.log("array:", props)
+      return ArrayBox(props)
     default:
       console.log("unknown type:", props.value.type.name)
   }
